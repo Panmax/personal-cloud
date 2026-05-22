@@ -16,6 +16,8 @@ function formatSize(bytes: number): string {
   return `${(bytes / Math.pow(1024, i)).toFixed(i > 0 ? 1 : 0)} ${units[i]}`;
 }
 
+const API_BASE = import.meta.env.VITE_API_BASE || "";
+
 export function SharePage() {
   const { shareId } = useParams<{ shareId: string }>();
   const [info, setInfo] = useState<ShareInfo | null>(null);
@@ -24,7 +26,7 @@ export function SharePage() {
   const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
-    fetch(`/s/${shareId}`)
+    fetch(`${API_BASE}/s/${shareId}`)
       .then((res) => {
         if (!res.ok) throw new Error(res.status === 410 ? "Link expired" : "Not found");
         return res.json();
@@ -37,7 +39,7 @@ export function SharePage() {
     setDownloading(true);
     setError("");
     try {
-      const res = await fetch(`/s/${shareId}/download`, {
+      const res = await fetch(`${API_BASE}/s/${shareId}/download`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password: password || undefined }),

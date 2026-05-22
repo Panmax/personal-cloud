@@ -2,13 +2,14 @@ name = "personal-cloud-api"
 main = "src/index.ts"
 compatibility_date = "2025-05-01"
 
-[vars]
-JWT_SECRET = "change-me-in-production"
+[[routes]]
+pattern = "api.cloud.jiapan.me"
+custom_domain = true
 
 [[d1_databases]]
 binding = "DB"
 database_name = "personal-cloud-db"
-database_id = "local"
+database_id = "fcc50e0b-550a-4bc0-87fe-ba792f37b708"
 migrations_dir = "migrations"
 
 [[r2_buckets]]
@@ -16,4 +17,4 @@ binding = "BUCKET"
 bucket_name = "personal-cloud-files"
 
 [triggers]
-crons = ["0 3 * * *"]
+crons = [ "0 3 * * *" ]

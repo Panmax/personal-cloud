@@ -10,6 +10,7 @@ interface UploadItem {
   error?: string;
 }
 
+const API_BASE = import.meta.env.VITE_API_BASE || "";
 const SMALL_FILE_LIMIT = 10 * 1024 * 1024;
 const PART_SIZE = 10 * 1024 * 1024;
 const MAX_CONCURRENT = 3;
@@ -60,7 +61,7 @@ export function useUpload(currentFolderId: string | null) {
             const blob = item.file.slice(start, end);
             const token = localStorage.getItem("token");
             const res = await fetch(
-              `/api/upload/part?key=${encodeURIComponent(presign.r2_key)}&uploadId=${presign.upload_id}&partNumber=${partIndex + 1}`,
+              `${API_BASE}/api/upload/part?key=${encodeURIComponent(presign.r2_key)}&uploadId=${presign.upload_id}&partNumber=${partIndex + 1}`,
               { method: "PUT", headers: { Authorization: `Bearer ${token}` }, body: blob }
             );
             if (!res.ok) throw new Error("Part upload failed");

@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { useFiles, useDeleteFile, useBatchAction, useCreateFolder, useRenameFile, useSearch } from "../hooks/useFiles";
+import { BASE } from "../api/client";
 import type { FileRecord } from "../hooks/useFiles";
 import { FileList } from "../components/FileList";
 import { Breadcrumb } from "../components/Breadcrumb";
@@ -11,6 +12,7 @@ import { UploadPanel } from "../components/UploadPanel";
 import { PreviewModal } from "../components/PreviewModal";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { ShareDialog } from "../components/ShareDialog";
+import { MoveDialog } from "../components/MoveDialog";
 
 interface BreadcrumbItem { id: string | null; name: string; }
 
@@ -22,6 +24,7 @@ export function FileManager() {
   const [shareFile, setShareFile] = useState<FileRecord | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [showMoveDialog, setShowMoveDialog] = useState(false);
 
   const { data: files = [], isLoading } = useFiles(currentFolderId);
   const { data: searchResults = [] } = useSearch(searchQuery);
@@ -79,7 +82,17 @@ export function FileManager() {
       const name = prompt("New name:", file.name);
       if (name && name !== file.name) renameFile.mutate({ id: file.id, name });
     }},
-    { label: "Download", action: () => window.open(`/api/files/${file.id}/download`, "_blank") },
+    { label: "Download", action: () => {
+      const token = localStorage.getItem("token");
+      fetch(`${BASE}/api/files/${file.id}/download`, { headers: { Authorization: `Bearer ${token}` } })
+        .then((res) => res.blob())
+        .then((blob) => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url; a.download = file.name; a.click();
+          URL.revokeObjectURL(url);
+        });
+    }},
     { label: "Share", action: () => setShareFile(file) },
     { label: "Delete", action: () => deleteFile.mutate(file.id), danger: true },
   ];
@@ -87,6 +100,12 @@ export function FileManager() {
   const handleBatchDelete = () => {
     batchAction.mutate({ action: "delete", ids: Array.from(selectedIds) });
     clearSelection();
+  };
+
+  const handleBatchMove = (targetId: string | null) => {
+    batchAction.mutate({ action: "move", ids: Array.from(selectedIds), target: targetId || "" });
+    clearSelection();
+    setShowMoveDialog(false);
   };
 
   useKeyboard({
@@ -133,7 +152,7 @@ export function FileManager() {
         if (id === null) navigateTo(null);
         else { const item = breadcrumb.find((b) => b.id === id); if (item) navigateTo(item.id, item.name); }
       }} />
-      <BatchActionBar onDelete={handleBatchDelete} onMove={() => {}} />
+      <BatchActionBar onDelete={handleBatchDelete} onMove={() => setShowMoveDialog(true)} />
       {isLoading ? (
         <div className="flex-1 flex items-center justify-center text-gray-400">Loading...</div>
       ) : (
@@ -150,6 +169,13 @@ export function FileManager() {
       <UploadPanel items={queue} onClear={clearCompleted} />
       {previewFile && <PreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />}
       {shareFile && <ShareDialog fileId={shareFile.id} fileName={shareFile.name} onClose={() => setShareFile(null)} />}
+      {showMoveDialog && (
+        <MoveDialog
+          selectedIds={Array.from(selectedIds)}
+          onMove={handleBatchMove}
+          onClose={() => setShowMoveDialog(false)}
+        />
+      )}
     </div>
   );
 }

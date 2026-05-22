@@ -13,7 +13,7 @@ publicRoutes.get("/:id", async (c) => {
   }
 
   const file = await getFile(c.env.DB, share.file_id);
-  if (!file) return c.json({ error: "File not found" }, 404);
+  if (!file || file.deleted_at) return c.json({ error: "File not found" }, 404);
 
   return c.json({
     filename: file.name,
@@ -47,7 +47,7 @@ publicRoutes.post("/:id/download", async (c) => {
   }
 
   const file = await getFile(c.env.DB, share.file_id);
-  if (!file || !file.r2_key) return c.json({ error: "File not found" }, 404);
+  if (!file || !file.r2_key || file.deleted_at) return c.json({ error: "File not found" }, 404);
 
   await incrementDownloadCount(c.env.DB, share.id);
 

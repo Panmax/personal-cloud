@@ -10,6 +10,7 @@ import { useUpload } from "../hooks/useUpload";
 import { UploadPanel } from "../components/UploadPanel";
 import { PreviewModal } from "../components/PreviewModal";
 import { useKeyboard } from "../hooks/useKeyboard";
+import { ShareDialog } from "../components/ShareDialog";
 
 interface BreadcrumbItem { id: string | null; name: string; }
 
@@ -18,6 +19,7 @@ export function FileManager() {
   const [breadcrumb, setBreadcrumb] = useState<BreadcrumbItem[]>([]);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; file: FileRecord } | null>(null);
   const [previewFile, setPreviewFile] = useState<FileRecord | null>(null);
+  const [shareFile, setShareFile] = useState<FileRecord | null>(null);
 
   const { data: files = [], isLoading } = useFiles(currentFolderId);
   const deleteFile = useDeleteFile();
@@ -74,6 +76,7 @@ export function FileManager() {
       if (name && name !== file.name) renameFile.mutate({ id: file.id, name });
     }},
     { label: "Download", action: () => window.open(`/api/files/${file.id}/download`, "_blank") },
+    { label: "Share", action: () => setShareFile(file) },
     { label: "Delete", action: () => deleteFile.mutate(file.id), danger: true },
   ];
 
@@ -128,6 +131,7 @@ export function FileManager() {
       )}
       <UploadPanel items={queue} onClear={clearCompleted} />
       {previewFile && <PreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />}
+      {shareFile && <ShareDialog fileId={shareFile.id} fileName={shareFile.name} onClose={() => setShareFile(null)} />}
     </div>
   );
 }

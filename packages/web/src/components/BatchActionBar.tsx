@@ -9,7 +9,7 @@ export function BatchActionBar({ onDelete, onMove }: Props) {
   if (count === 0) return null;
 
   return (
-    <div className="flex items-center gap-3 px-4 py-2 bg-brand-50 border-b border-brand-100">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-5 py-2.5 bg-white border border-slate-200 rounded-xl shadow-lg">
       <span className="text-sm text-brand-700 font-medium">{count} selected</span>
       <button onClick={onMove} className="flex items-center gap-1.5 text-sm px-3 py-1 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-700 transition-colors">
         <MoveRight className="w-3.5 h-3.5" /> Move

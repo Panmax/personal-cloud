@@ -53,4 +53,28 @@ export async function handleCron(env: Env): Promise<void> {
   await env.DB.prepare("DELETE FROM shares WHERE expires_at IS NOT NULL AND expires_at < ?")
     .bind(now.toISOString())
     .run();
+
+  // 4. Clean up orphaned files (parent_id points to a non-existent record)
+  const orphans = await env.DB.prepare(
+    `SELECT id, r2_key FROM files
+     WHERE parent_id IS NOT NULL
+     AND parent_id NOT IN (SELECT id FROM files)`
+  ).all<{ id: string; r2_key: string | null }>();
+
+  for (const orphan of orphans.results) {
+    const versions = await env.DB.prepare(
+      "SELECT r2_key FROM file_versions WHERE file_id = ?"
+    ).bind(orphan.id).all<{ r2_key: string }>();
+
+    const keysToDelete = versions.results.map((v) => v.r2_key);
+    if (orphan.r2_key) keysToDelete.push(orphan.r2_key);
+
+    for (const key of keysToDelete) {
+      await env.BUCKET.delete(key);
+    }
+
+    await env.DB.prepare("DELETE FROM file_versions WHERE file_id = ?").bind(orphan.id).run();
+    await env.DB.prepare("DELETE FROM shares WHERE file_id = ?").bind(orphan.id).run();
+    await env.DB.prepare("DELETE FROM files WHERE id = ?").bind(orphan.id).run();
+  }
 }

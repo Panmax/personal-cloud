@@ -80,10 +80,9 @@ upload.post("/complete", async (c) => {
   );
 
   await multipartUpload.complete(
-    body.parts.map((p) => ({
-      partNumber: p.partNumber,
-      etag: p.etag,
-    }))
+    body.parts
+      .sort((a, b) => a.partNumber - b.partNumber)
+      .map((p) => ({ partNumber: p.partNumber, etag: p.etag }))
   );
 
   // Check for existing file with same name (version handling)

@@ -14,7 +14,7 @@ import { publicRoutes } from "./routes/public";
 
 const app = new Hono<{ Bindings: Env }>();
 
-app.use("/*", cors());
+app.use("/*", cors({ exposeHeaders: ["etag"] }));
 app.route("/api/auth", auth);
 app.route("/s", publicRoutes);
 app.use("/api/*", authMiddleware);

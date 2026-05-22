@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Folder } from "lucide-react";
 import { useFiles } from "../hooks/useFiles";
 import type { FileRecord } from "../hooks/useFiles";
 
@@ -57,7 +58,7 @@ export function MoveDialog({ selectedIds, onMove, onClose }: Props) {
                 onClick={() => navigateInto(folder)}
                 className="w-full flex items-center px-4 py-2 hover:bg-gray-50 border-b text-left"
               >
-                <span className="mr-3">📁</span>
+                <Folder className="w-4 h-4 mr-3 text-brand-500" />
                 <span className="text-sm">{folder.name}</span>
               </button>
             ))

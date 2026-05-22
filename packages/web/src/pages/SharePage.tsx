@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { FileText } from "lucide-react";
 
 interface ShareInfo {
   filename: string;
@@ -81,7 +82,9 @@ export function SharePage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm text-center">
-        <div className="text-4xl mb-4">📄</div>
+        <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-4 mx-auto">
+          <FileText className="w-8 h-8 text-slate-400" />
+        </div>
         <h2 className="text-lg font-medium mb-1">{info.filename}</h2>
         <p className="text-sm text-gray-500 mb-6">{formatSize(info.size)}</p>
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}

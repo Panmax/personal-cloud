@@ -80,4 +80,57 @@ export function useSearch(query: string) {
   });
 }
 
-export type { FileRecord };
+export function useTrash() {
+  return useQuery({
+    queryKey: ["trash"],
+    queryFn: () => api.get<{ files: FileRecord[] }>("/api/trash"),
+    select: (data) => data.files,
+  });
+}
+
+export function useRestoreFile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.post<{ ok: boolean }>(`/api/trash/${id}/restore`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["trash"] });
+      qc.invalidateQueries({ queryKey: ["files"] });
+    },
+  });
+}
+
+export function usePermanentDelete() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.delete<{ ok: boolean }>(`/api/trash/${id}`),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["trash"] }); },
+  });
+}
+
+interface ShareInfo {
+  id: string;
+  file_id: string;
+  file_name: string | null;
+  password: string | null;
+  expires_at: string | null;
+  download_count: number;
+  created_at: string;
+}
+
+export function useShares() {
+  return useQuery({
+    queryKey: ["shares"],
+    queryFn: () => api.get<{ shares: ShareInfo[] }>("/api/shares"),
+    select: (data) => data.shares,
+  });
+}
+
+export function useRevokeShare() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.delete<{ ok: boolean }>(`/api/shares/${id}`),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["shares"] }); },
+  });
+}
+
+export type { FileRecord, ShareInfo };

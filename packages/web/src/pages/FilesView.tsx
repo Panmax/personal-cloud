@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { Search, LayoutList, LayoutGrid, FolderPlus, Upload } from "lucide-react";
 import { useFiles, useDeleteFile, useBatchAction, useCreateFolder, useRenameFile, useSearch } from "../hooks/useFiles";
 import { BASE } from "../api/client";
 import type { FileRecord } from "../hooks/useFiles";
@@ -16,7 +17,7 @@ import { MoveDialog } from "../components/MoveDialog";
 
 interface BreadcrumbItem { id: string | null; name: string; }
 
-export function FileManager() {
+export function FilesView() {
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [breadcrumb, setBreadcrumb] = useState<BreadcrumbItem[]>([]);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; file: FileRecord } | null>(null);
@@ -33,7 +34,7 @@ export function FileManager() {
   const batchAction = useBatchAction();
   const createFolder = useCreateFolder();
   const renameFile = useRenameFile();
-  const { selectedIds, clearSelection } = useAppStore();
+  const { selectedIds, clearSelection, viewMode, setViewMode } = useAppStore();
   const { queue, addFiles, clearCompleted } = useUpload(currentFolderId);
   const [dragging, setDragging] = useState(false);
 
@@ -123,29 +124,57 @@ export function FileManager() {
     },
   });
 
+  const activeClass = "p-1.5 rounded-md bg-brand-50 text-brand-600";
+  const inactiveClass = "p-1.5 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors";
+
   return (
-    <div className="h-screen flex flex-col bg-white" onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
-      <header className="flex items-center justify-between px-4 py-3 border-b">
-        <h1 className="text-lg font-bold">Personal Cloud</h1>
-        <div className="flex items-center gap-2 flex-1 max-w-md mx-4">
+    <div className="flex-1 flex flex-col overflow-hidden" onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
+      <header className="flex items-center gap-3 px-4 py-3 border-b border-slate-200">
+        <div className="flex items-center gap-2 flex-1 max-w-md bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5">
+          <Search className="w-4 h-4 text-slate-400 flex-shrink-0" />
           <input
             type="text"
             placeholder="Search files..."
             value={searchQuery}
             onChange={(e) => { setSearchQuery(e.target.value); setIsSearching(e.target.value.length > 0); }}
-            className="w-full px-3 py-1.5 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full text-sm bg-transparent border-none focus:outline-none placeholder-slate-400"
           />
           {isSearching && (
-            <button onClick={() => { setSearchQuery(""); setIsSearching(false); }} className="text-sm text-gray-500 hover:text-gray-700">
+            <button onClick={() => { setSearchQuery(""); setIsSearching(false); }} className="text-xs text-slate-400 hover:text-slate-600 flex-shrink-0">
               Clear
             </button>
           )}
         </div>
-        <div className="flex gap-2">
-          <button onClick={handleNewFolder} className="text-sm px-3 py-1 bg-gray-100 rounded hover:bg-gray-200">
+        <div className="flex items-center gap-1 ml-auto">
+          <button
+            onClick={() => setViewMode("list")}
+            className={viewMode === "list" ? activeClass : inactiveClass}
+            title="List view"
+          >
+            <LayoutList className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setViewMode("grid")}
+            className={viewMode === "grid" ? activeClass : inactiveClass}
+            title="Grid view"
+          >
+            <LayoutGrid className="w-4 h-4" />
+          </button>
+          <div className="w-px h-5 bg-slate-200 mx-2" />
+          <button
+            onClick={handleNewFolder}
+            className="flex items-center gap-1.5 text-sm px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-700 transition-colors"
+          >
+            <FolderPlus className="w-4 h-4" />
             New Folder
           </button>
-          <button onClick={handleFileInput} className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Upload</button>
+          <button
+            onClick={handleFileInput}
+            className="flex items-center gap-1.5 text-sm px-3 py-1.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors"
+          >
+            <Upload className="w-4 h-4" />
+            Upload
+          </button>
         </div>
       </header>
       <Breadcrumb path={breadcrumb} onNavigate={(id) => {
@@ -154,7 +183,7 @@ export function FileManager() {
       }} />
       <BatchActionBar onDelete={handleBatchDelete} onMove={() => setShowMoveDialog(true)} />
       {isLoading ? (
-        <div className="flex-1 flex items-center justify-center text-gray-400">Loading...</div>
+        <div className="flex-1 flex items-center justify-center text-slate-400">Loading...</div>
       ) : (
         <FileList files={displayFiles} onOpen={handleOpen} onContextMenu={handleContextMenu} />
       )}
@@ -162,8 +191,8 @@ export function FileManager() {
         <ContextMenu x={contextMenu.x} y={contextMenu.y} items={getContextMenuItems(contextMenu.file)} onClose={() => setContextMenu(null)} />
       )}
       {dragging && (
-        <div className="fixed inset-0 bg-blue-500/10 border-4 border-dashed border-blue-500 z-50 flex items-center justify-center">
-          <p className="text-xl font-medium text-blue-700">Drop files to upload</p>
+        <div className="fixed inset-0 bg-brand-500/10 border-4 border-dashed border-brand-500 z-50 flex items-center justify-center">
+          <p className="text-xl font-medium text-brand-700">Drop files to upload</p>
         </div>
       )}
       <UploadPanel items={queue} onClear={clearCompleted} />

@@ -3,3 +3,4 @@ dist
 .wrangler
 .superpowers/
 .dev.vars
+packages/worker/test/.DS_Store

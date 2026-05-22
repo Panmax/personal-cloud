@@ -1,9 +1,7 @@
 import { useAppStore } from "../stores/app";
+import { Trash2, MoveRight, X } from "lucide-react";
 
-interface Props {
-  onDelete: () => void;
-  onMove: () => void;
-}
+interface Props { onDelete: () => void; onMove: () => void; }
 
 export function BatchActionBar({ onDelete, onMove }: Props) {
   const { selectedIds, clearSelection } = useAppStore();
@@ -11,11 +9,17 @@ export function BatchActionBar({ onDelete, onMove }: Props) {
   if (count === 0) return null;
 
   return (
-    <div className="flex items-center gap-4 px-4 py-2 bg-blue-50 border-b">
-      <span className="text-sm text-blue-700 font-medium">{count} selected</span>
-      <button onClick={onMove} className="text-sm px-3 py-1 bg-white border rounded hover:bg-gray-50">Move</button>
-      <button onClick={onDelete} className="text-sm px-3 py-1 bg-red-50 border border-red-200 text-red-600 rounded hover:bg-red-100">Delete</button>
-      <button onClick={clearSelection} className="text-sm text-gray-500 hover:text-gray-700 ml-auto">Cancel</button>
+    <div className="flex items-center gap-3 px-4 py-2 bg-brand-50 border-b border-brand-100">
+      <span className="text-sm text-brand-700 font-medium">{count} selected</span>
+      <button onClick={onMove} className="flex items-center gap-1.5 text-sm px-3 py-1 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-700 transition-colors">
+        <MoveRight className="w-3.5 h-3.5" /> Move
+      </button>
+      <button onClick={onDelete} className="flex items-center gap-1.5 text-sm px-3 py-1 bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition-colors">
+        <Trash2 className="w-3.5 h-3.5" /> Delete
+      </button>
+      <button onClick={clearSelection} className="ml-auto p-1 rounded-md hover:bg-brand-100 text-brand-600 transition-colors">
+        <X className="w-4 h-4" />
+      </button>
     </div>
   );
 }

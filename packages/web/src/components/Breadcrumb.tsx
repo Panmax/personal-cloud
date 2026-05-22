@@ -1,23 +1,18 @@
-interface BreadcrumbItem {
-  id: string | null;
-  name: string;
-}
+import { ChevronRight, Home } from "lucide-react";
 
-interface Props {
-  path: BreadcrumbItem[];
-  onNavigate: (id: string | null) => void;
-}
+interface BreadcrumbItem { id: string | null; name: string; }
+interface Props { path: BreadcrumbItem[]; onNavigate: (id: string | null) => void; }
 
 export function Breadcrumb({ path, onNavigate }: Props) {
   return (
-    <nav className="flex items-center gap-1 text-sm text-gray-600 px-4 py-2 border-b">
-      <button onClick={() => onNavigate(null)} className="hover:text-blue-600 font-medium">
-        Home
+    <nav className="flex items-center gap-1 text-sm px-4 py-2.5 border-b border-slate-100">
+      <button onClick={() => onNavigate(null)} className="flex items-center gap-1 text-slate-500 hover:text-brand-600 transition-colors">
+        <Home className="w-4 h-4" />
       </button>
       {path.map((item) => (
         <span key={item.id} className="flex items-center gap-1">
-          <span className="text-gray-400">/</span>
-          <button onClick={() => onNavigate(item.id)} className="hover:text-blue-600">
+          <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+          <button onClick={() => onNavigate(item.id)} className="text-slate-600 hover:text-brand-600 transition-colors">
             {item.name}
           </button>
         </span>

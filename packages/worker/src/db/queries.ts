@@ -122,8 +122,7 @@ export async function restoreFile(
 export async function permanentDeleteFile(
   db: D1Database,
   id: string
-): Promise<string[]> {
-  // Collect r2 keys to delete
+): Promise<{ r2Keys: string[] }> {
   const file = await db
     .prepare("SELECT r2_key FROM files WHERE id = ?")
     .bind(id)
@@ -153,7 +152,7 @@ export async function permanentDeleteFile(
     .bind(id)
     .run();
 
-  return r2Keys;
+  return { r2Keys };
 }
 
 export async function searchFiles(
@@ -243,10 +242,10 @@ export async function getShare(
     .first<ShareRecord>();
 }
 
-export async function listShares(db: D1Database): Promise<ShareRecord[]> {
+export async function listShares(db: D1Database): Promise<(ShareRecord & { file_name: string | null })[]> {
   const result = await db
-    .prepare("SELECT * FROM shares ORDER BY created_at DESC")
-    .all<ShareRecord>();
+    .prepare("SELECT shares.*, files.name as file_name FROM shares LEFT JOIN files ON shares.file_id = files.id ORDER BY shares.created_at DESC")
+    .all<ShareRecord & { file_name: string | null }>();
   return result.results;
 }
 

@@ -16,28 +16,21 @@ function formatSize(bytes: number): string {
   return `${(bytes / Math.pow(1024, i)).toFixed(i > 0 ? 1 : 0)} ${units[i]}`;
 }
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("zh-CN", {
-    year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit",
-  });
-}
-
-export function FileItem({ file, selected, onSelect, onOpen, onContextMenu }: Props) {
+export function FileGridItem({ file, selected, onSelect, onOpen, onContextMenu }: Props) {
   const { icon: Icon, className: iconClass } = getFileIcon(file.mime_type, !!file.is_dir);
 
   return (
     <div
-      className={`flex items-center px-4 py-2.5 cursor-pointer transition-colors duration-150 border-b border-slate-100 ${
-        selected ? "bg-brand-50 border-l-2 border-l-brand-500" : "hover:bg-slate-50"
+      className={`flex flex-col items-center p-4 rounded-xl cursor-pointer transition-all duration-150 border ${
+        selected ? "border-brand-300 bg-brand-50 shadow-sm" : "border-transparent hover:bg-slate-50 hover:border-slate-200"
       }`}
       onClick={(e) => onSelect(file.id, e.ctrlKey || e.metaKey)}
       onDoubleClick={() => onOpen(file)}
       onContextMenu={(e) => onContextMenu(e, file)}
     >
-      <Icon className={`w-5 h-5 mr-3 flex-shrink-0 ${iconClass}`} />
-      <span className="flex-1 truncate text-slate-700 text-sm">{file.name}</span>
-      <span className="w-24 text-right text-xs text-slate-400">{formatSize(file.size)}</span>
-      <span className="w-40 text-right text-xs text-slate-400">{formatDate(file.updated_at)}</span>
+      <Icon className={`w-10 h-10 mb-2 ${iconClass}`} />
+      <span className="text-sm text-slate-700 text-center truncate w-full">{file.name}</span>
+      <span className="text-xs text-slate-400 mt-1">{formatSize(file.size)}</span>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { useFiles, useDeleteFile, useBatchAction, useCreateFolder, useRenameFile } from "../hooks/useFiles";
+import { useFiles, useDeleteFile, useBatchAction, useCreateFolder, useRenameFile, useSearch } from "../hooks/useFiles";
 import type { FileRecord } from "../hooks/useFiles";
 import { FileList } from "../components/FileList";
 import { Breadcrumb } from "../components/Breadcrumb";
@@ -20,8 +20,12 @@ export function FileManager() {
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; file: FileRecord } | null>(null);
   const [previewFile, setPreviewFile] = useState<FileRecord | null>(null);
   const [shareFile, setShareFile] = useState<FileRecord | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
   const { data: files = [], isLoading } = useFiles(currentFolderId);
+  const { data: searchResults = [] } = useSearch(searchQuery);
+  const displayFiles = isSearching && searchQuery ? searchResults : files;
   const deleteFile = useDeleteFile();
   const batchAction = useBatchAction();
   const createFolder = useCreateFolder();
@@ -87,7 +91,7 @@ export function FileManager() {
 
   useKeyboard({
     onDelete: () => { if (selectedIds.size > 0) handleBatchDelete(); },
-    onSelectAll: () => { useAppStore.getState().selectAll(files.map((f) => f.id)); },
+    onSelectAll: () => { useAppStore.getState().selectAll(displayFiles.map((f) => f.id)); },
     onRename: () => {
       if (selectedIds.size === 1) {
         const id = Array.from(selectedIds)[0];
@@ -104,6 +108,20 @@ export function FileManager() {
     <div className="h-screen flex flex-col bg-white" onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
       <header className="flex items-center justify-between px-4 py-3 border-b">
         <h1 className="text-lg font-bold">Personal Cloud</h1>
+        <div className="flex items-center gap-2 flex-1 max-w-md mx-4">
+          <input
+            type="text"
+            placeholder="Search files..."
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); setIsSearching(e.target.value.length > 0); }}
+            className="w-full px-3 py-1.5 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {isSearching && (
+            <button onClick={() => { setSearchQuery(""); setIsSearching(false); }} className="text-sm text-gray-500 hover:text-gray-700">
+              Clear
+            </button>
+          )}
+        </div>
         <div className="flex gap-2">
           <button onClick={handleNewFolder} className="text-sm px-3 py-1 bg-gray-100 rounded hover:bg-gray-200">
             New Folder
@@ -119,7 +137,7 @@ export function FileManager() {
       {isLoading ? (
         <div className="flex-1 flex items-center justify-center text-gray-400">Loading...</div>
       ) : (
-        <FileList files={files} onOpen={handleOpen} onContextMenu={handleContextMenu} />
+        <FileList files={displayFiles} onOpen={handleOpen} onContextMenu={handleContextMenu} />
       )}
       {contextMenu && (
         <ContextMenu x={contextMenu.x} y={contextMenu.y} items={getContextMenuItems(contextMenu.file)} onClose={() => setContextMenu(null)} />

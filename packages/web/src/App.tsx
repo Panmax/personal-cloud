@@ -7,6 +7,7 @@ import { FilesView } from "./pages/FilesView";
 import { TrashView } from "./pages/TrashView";
 import { SharesView } from "./pages/SharesView";
 import { useAppStore } from "./stores/app";
+import { ToastContainer } from "./components/Toast";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30000, retry: 1 } },
@@ -39,6 +40,7 @@ export function App() {
           <Route path="/*" element={<ProtectedRoute><MainApp /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
+      <ToastContainer />
     </QueryClientProvider>
   );
 }

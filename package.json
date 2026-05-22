@@ -1,0 +1,11 @@
+{
+  "name": "personal-cloud",
+  "private": true,
+  "scripts": {
+    "dev:worker": "pnpm --filter worker dev",
+    "dev:web": "pnpm --filter web dev",
+    "deploy:worker": "pnpm --filter worker deploy",
+    "deploy:web": "pnpm --filter web deploy",
+    "test": "pnpm --filter worker test"
+  }
+}

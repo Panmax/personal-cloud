@@ -1,0 +1,19 @@
+name = "personal-cloud-api"
+main = "src/index.ts"
+compatibility_date = "2025-05-01"
+
+[vars]
+JWT_SECRET = "change-me-in-production"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "personal-cloud-db"
+database_id = "local"
+migrations_dir = "migrations"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "personal-cloud-files"
+
+[triggers]
+crons = ["0 3 * * *"]

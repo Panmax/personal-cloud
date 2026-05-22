@@ -1,0 +1,21 @@
+{
+  "name": "worker",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "vitest",
+    "db:migrate": "wrangler d1 migrations apply personal-cloud-db --local"
+  },
+  "dependencies": {
+    "hono": "^4.7.0",
+    "nanoid": "^5.1.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250501.0",
+    "@cloudflare/vitest-pool-workers": "^0.8.0",
+    "vitest": "^3.1.0",
+    "wrangler": "^4.14.0",
+    "typescript": "^5.8.0"
+  }
+}

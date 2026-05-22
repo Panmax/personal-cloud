@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import type { Env } from "./types";
+import { handleCron } from "./cron";
 import { authMiddleware } from "./middleware/auth";
 import { auth } from "./routes/auth";
 import { files } from "./routes/files";
@@ -27,6 +28,6 @@ app.route("/api/shares", shares);
 export default {
   fetch: app.fetch,
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
-    // Cron cleanup — implemented later
+    ctx.waitUntil(handleCron(env));
   },
 };

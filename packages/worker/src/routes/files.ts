@@ -150,7 +150,15 @@ files.post("/batch", async (c) => {
 });
 
 // GET /:id/download — download file
+// Supports auth via query param ?token=xxx (for direct browser downloads)
 files.get("/:id/download", async (c) => {
+  const queryToken = c.req.query("token");
+  if (queryToken) {
+    const { verifyJwt } = await import("../utils/jwt");
+    const result = await verifyJwt(queryToken, c.env.JWT_SECRET);
+    if (!result.valid) return c.json({ error: "Unauthorized" }, 401);
+  }
+
   const file = await getFile(c.env.DB, c.req.param("id"));
   if (!file || !file.r2_key) return c.json({ error: "Not found" }, 404);
 

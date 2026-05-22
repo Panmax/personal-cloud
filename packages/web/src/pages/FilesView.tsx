@@ -90,21 +90,20 @@ export function FilesView() {
     clearSelection();
   }, [breadcrumb, clearSelection]);
 
+  const downloadFile = (file: FileRecord) => {
+    const token = localStorage.getItem("token");
+    const url = `${BASE}/api/files/${file.id}/download?token=${token}`;
+    const a = document.createElement("a");
+    a.href = url; a.download = file.name; a.click();
+  };
+
   const handleOpen = (file: FileRecord) => {
     if (file.is_dir) {
       navigateTo(file.id, file.name);
     } else if (getPreviewType(file.mime_type) !== "none") {
       setPreviewFile(file);
     } else {
-      const token = localStorage.getItem("token");
-      fetch(`${BASE}/api/files/${file.id}/download`, { headers: { Authorization: `Bearer ${token}` } })
-        .then((res) => res.blob())
-        .then((blob) => {
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url; a.download = file.name; a.click();
-          URL.revokeObjectURL(url);
-        });
+      downloadFile(file);
     }
   };
 
@@ -123,17 +122,7 @@ export function FilesView() {
       const name = prompt("New name:", file.name);
       if (name && name !== file.name) renameFile.mutate({ id: file.id, name });
     }},
-    { label: "Download", action: () => {
-      const token = localStorage.getItem("token");
-      fetch(`${BASE}/api/files/${file.id}/download`, { headers: { Authorization: `Bearer ${token}` } })
-        .then((res) => res.blob())
-        .then((blob) => {
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url; a.download = file.name; a.click();
-          URL.revokeObjectURL(url);
-        });
-    }},
+    { label: "Download", action: () => downloadFile(file) },
     { label: "Share", action: () => setShareFile(file) },
     { label: "Delete", action: () => deleteFile.mutate(file.id), danger: true },
   ];

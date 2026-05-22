@@ -58,18 +58,9 @@ export function PreviewModal({ file, onClose }: Props) {
 
   const handleDownload = () => {
     const token = localStorage.getItem("token");
-    fetch(`${BASE}/api/files/${file.id}/download`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.blob())
-      .then((blob) => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = file.name;
-        a.click();
-        URL.revokeObjectURL(url);
-      });
+    const url = `${BASE}/api/files/${file.id}/download?token=${token}`;
+    const a = document.createElement("a");
+    a.href = url; a.download = file.name; a.click();
   };
 
   return (

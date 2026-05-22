@@ -40,9 +40,36 @@ export function FilesView() {
 
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setDragging(true); };
   const handleDragLeave = () => setDragging(false);
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault(); setDragging(false);
-    if (e.dataTransfer.files.length > 0) addFiles(e.dataTransfer.files);
+    const items = e.dataTransfer.items;
+    if (!items || items.length === 0) return;
+
+    const files: File[] = [];
+    const readEntry = (entry: FileSystemEntry): Promise<void> => {
+      return new Promise((resolve) => {
+        if (entry.isFile) {
+          (entry as FileSystemFileEntry).file((f) => { files.push(f); resolve(); });
+        } else if (entry.isDirectory) {
+          const reader = (entry as FileSystemDirectoryEntry).createReader();
+          reader.readEntries(async (entries) => {
+            for (const e of entries) await readEntry(e);
+            resolve();
+          });
+        } else {
+          resolve();
+        }
+      });
+    };
+
+    const entries: FileSystemEntry[] = [];
+    for (let i = 0; i < items.length; i++) {
+      const entry = items[i].webkitGetAsEntry();
+      if (entry) entries.push(entry);
+    }
+    for (const entry of entries) await readEntry(entry);
+
+    if (files.length > 0) addFiles(files);
   };
   const handleFileInput = () => {
     const input = document.createElement("input");

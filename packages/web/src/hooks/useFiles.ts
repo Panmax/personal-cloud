@@ -156,6 +156,23 @@ export function usePermanentDelete() {
   });
 }
 
+export function useEmptyTrash() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.delete<{ ok: boolean }>("/api/trash"),
+    onMutate: () => { return toast("Emptying trash...", "loading"); },
+    onSuccess: (_, __, toastId) => {
+      dismissToast(toastId as string);
+      toast("Trash emptied", "success");
+      qc.invalidateQueries({ queryKey: ["trash"] });
+    },
+    onError: (_, __, toastId) => {
+      dismissToast(toastId as string);
+      toast("Failed to empty trash", "error");
+    },
+  });
+}
+
 interface ShareInfo {
   id: string;
   file_id: string;

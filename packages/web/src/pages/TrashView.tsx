@@ -1,5 +1,5 @@
 import { Trash2, RotateCcw, XCircle } from "lucide-react";
-import { useTrash, useRestoreFile, usePermanentDelete } from "../hooks/useFiles";
+import { useTrash, useRestoreFile, usePermanentDelete, useEmptyTrash } from "../hooks/useFiles";
 import { getFileIcon } from "../utils/icons";
 
 function formatDate(iso: string): string {
@@ -19,15 +19,24 @@ export function TrashView() {
   const { data: files = [], isLoading } = useTrash();
   const restoreFile = useRestoreFile();
   const permanentDelete = usePermanentDelete();
+  const emptyTrash = useEmptyTrash();
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       <header className="flex items-center gap-3 px-5 py-4 border-b border-slate-200">
         <Trash2 className="w-5 h-5 text-slate-500" />
-        <div>
+        <div className="flex-1">
           <h2 className="font-semibold text-slate-800">Trash</h2>
           <p className="text-xs text-slate-400">Files are automatically deleted after 30 days</p>
         </div>
+        {files.length > 0 && (
+          <button
+            onClick={() => { if (confirm("Empty trash? All files will be permanently deleted.")) emptyTrash.mutate(); }}
+            className="text-sm px-3 py-1.5 bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+          >
+            Empty Trash
+          </button>
+        )}
       </header>
 
       {isLoading ? (

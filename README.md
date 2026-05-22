@@ -36,22 +36,23 @@ A fast, self-hosted personal cloud storage built entirely on Cloudflare's edge i
 ## Architecture
 
 ```
-┌─────────────────┐       ┌──────────────────────┐       ┌─────────────┐
-│  React SPA      │──────▶│  Hono Worker (API)   │──────▶│  Cloudflare │
-│  (CF Pages)     │       │                      │       │  R2         │
-│                 │◀──────│  - File CRUD          │       └─────────────┘
-│  - File manager │       │  - Auth (JWT)        │
-│  - Preview      │       │  - Search            │       ┌─────────────┐
-│  - Drag upload  │       │  - Share links       │──────▶│  Cloudflare │
-└─────────────────┘       │  - Versioning        │       │  D1         │
-                          └──────────────────────┘       └─────────────┘
-                                   │
-          ┌────────────────────────┤
-          ▼                        ▼
-┌──────────────────┐    ┌──────────────────────┐
-│ Small files      │    │ Large files (≥10MB)   │
-│ via Worker proxy │    │ Multipart direct to R2│
-└──────────────────┘    └──────────────────────┘
++-------------------+       +------------------------+       +---------------+
+|  React SPA        |------>|  Hono Worker (API)     |------>|  Cloudflare   |
+|  (CF Pages)       |       |                        |       |  R2           |
+|                   |<------|  - File CRUD           |       +---------------+
+|  - File manager   |       |  - Auth (JWT)          |
+|  - Preview        |       |  - Search              |       +---------------+
+|  - Drag upload    |       |  - Share links         |------>|  Cloudflare   |
++-------------------+       |  - Versioning          |       |  D1           |
+                            +------------------------+       +---------------+
+                                     |
+            +------------------------+
+            |                        |
+            v                        v
++--------------------+    +------------------------+
+| Small files (<10MB)|    | Large files (>=10MB)   |
+| via Worker proxy   |    | Multipart direct to R2 |
++--------------------+    +------------------------+
 ```
 
 - **Small files (<10MB)**: Uploaded through the Worker for simplicity

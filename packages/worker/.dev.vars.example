@@ -1,0 +1,3 @@
+# Generate password hash: echo -n "your-password" | shasum -a 256 | cut -d' ' -f1
+AUTH_PASSWORD_HASH=your-sha256-hash-here
+JWT_SECRET=local-dev-secret-change-in-prod

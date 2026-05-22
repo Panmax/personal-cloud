@@ -4,7 +4,7 @@ import { getFileIcon } from "../utils/icons";
 interface Props {
   file: FileRecord;
   selected: boolean;
-  onSelect: (id: string, multi: boolean) => void;
+  onSelect: (id: string, multi: boolean, shift: boolean) => void;
   onOpen: (file: FileRecord) => void;
   onContextMenu: (e: React.MouseEvent, file: FileRecord) => void;
 }
@@ -30,7 +30,7 @@ export function FileItem({ file, selected, onSelect, onOpen, onContextMenu }: Pr
       className={`flex items-center px-4 py-2.5 cursor-pointer transition-colors duration-150 border-b border-slate-100 select-none ${
         selected ? "bg-brand-50 border-l-2 border-l-brand-500" : "hover:bg-slate-50"
       }`}
-      onClick={(e) => onSelect(file.id, e.ctrlKey || e.metaKey)}
+      onClick={(e) => onSelect(file.id, e.ctrlKey || e.metaKey, e.shiftKey)}
       onDoubleClick={() => onOpen(file)}
       onContextMenu={(e) => onContextMenu(e, file)}
     >

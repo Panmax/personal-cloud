@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { FileItem } from "./FileItem";
 import { FileGridItem } from "./FileGridItem";
 import type { FileRecord } from "../hooks/useFiles";
@@ -10,11 +11,25 @@ interface Props {
 }
 
 export function FileList({ files, onOpen, onContextMenu }: Props) {
-  const { selectedIds, toggleSelect, clearSelection, viewMode } = useAppStore();
+  const { selectedIds, toggleSelect, selectAll, clearSelection, viewMode } = useAppStore();
+  const lastClickedIndex = useRef<number>(-1);
 
-  const handleSelect = (id: string, multi: boolean) => {
-    if (!multi) clearSelection();
-    toggleSelect(id);
+  const handleSelect = (id: string, multi: boolean, shift: boolean) => {
+    const currentIndex = files.findIndex((f) => f.id === id);
+
+    if (shift && lastClickedIndex.current >= 0) {
+      const start = Math.min(lastClickedIndex.current, currentIndex);
+      const end = Math.max(lastClickedIndex.current, currentIndex);
+      const rangeIds = files.slice(start, end + 1).map((f) => f.id);
+      selectAll(rangeIds);
+    } else if (multi) {
+      toggleSelect(id);
+    } else {
+      clearSelection();
+      toggleSelect(id);
+    }
+
+    lastClickedIndex.current = currentIndex;
   };
 
   if (files.length === 0) {

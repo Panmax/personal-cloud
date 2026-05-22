@@ -4,7 +4,7 @@ import { getFileIcon } from "../utils/icons";
 interface Props {
   file: FileRecord;
   selected: boolean;
-  onSelect: (id: string, multi: boolean) => void;
+  onSelect: (id: string, multi: boolean, shift: boolean) => void;
   onOpen: (file: FileRecord) => void;
   onContextMenu: (e: React.MouseEvent, file: FileRecord) => void;
 }
@@ -24,7 +24,7 @@ export function FileGridItem({ file, selected, onSelect, onOpen, onContextMenu }
       className={`flex flex-col items-center p-4 rounded-xl cursor-pointer transition-all duration-150 border select-none ${
         selected ? "border-brand-300 bg-brand-50 shadow-sm" : "border-transparent hover:bg-slate-50 hover:border-slate-200"
       }`}
-      onClick={(e) => onSelect(file.id, e.ctrlKey || e.metaKey)}
+      onClick={(e) => onSelect(file.id, e.ctrlKey || e.metaKey, e.shiftKey)}
       onDoubleClick={() => onOpen(file)}
       onContextMenu={(e) => onContextMenu(e, file)}
     >

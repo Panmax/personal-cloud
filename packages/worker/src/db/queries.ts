@@ -80,11 +80,24 @@ export async function softDeleteFile(
     .prepare("UPDATE files SET deleted_at = ?, updated_at = ? WHERE id = ?")
     .bind(now, now, id)
     .run();
+
+  const children = await db
+    .prepare("SELECT id FROM files WHERE parent_id = ? AND deleted_at IS NULL")
+    .bind(id)
+    .all<{ id: string }>();
+
+  for (const child of children.results) {
+    await softDeleteFile(db, child.id, now);
+  }
 }
 
 export async function listTrash(db: D1Database): Promise<FileRecord[]> {
   const result = await db
-    .prepare("SELECT * FROM files WHERE deleted_at IS NOT NULL")
+    .prepare(
+      `SELECT * FROM files WHERE deleted_at IS NOT NULL
+       AND (parent_id IS NULL OR parent_id NOT IN (SELECT id FROM files WHERE deleted_at IS NOT NULL))
+       ORDER BY deleted_at DESC`
+    )
     .all<FileRecord>();
   return result.results;
 }
@@ -97,32 +110,58 @@ export async function restoreFile(
   const file = await getFile(db, id);
   if (!file) return;
 
-  // Check if parent still exists (and is not deleted)
   let parentId = file.parent_id;
   if (parentId !== null) {
     const parent = await db
-      .prepare(
-        "SELECT id FROM files WHERE id = ? AND deleted_at IS NULL"
-      )
+      .prepare("SELECT id FROM files WHERE id = ? AND deleted_at IS NULL")
       .bind(parentId)
       .first<{ id: string }>();
     if (!parent) {
-      parentId = null; // restore to root if parent no longer exists
+      parentId = null;
     }
   }
 
   await db
-    .prepare(
-      "UPDATE files SET deleted_at = NULL, parent_id = ?, updated_at = ? WHERE id = ?"
-    )
+    .prepare("UPDATE files SET deleted_at = NULL, parent_id = ?, updated_at = ? WHERE id = ?")
     .bind(parentId, now, id)
     .run();
+
+  const children = await db
+    .prepare("SELECT id FROM files WHERE parent_id = ? AND deleted_at IS NOT NULL")
+    .bind(id)
+    .all<{ id: string }>();
+
+  for (const child of children.results) {
+    await db
+      .prepare("UPDATE files SET deleted_at = NULL, updated_at = ? WHERE id = ?")
+      .bind(now, child.id)
+      .run();
+    const grandchildren = await db
+      .prepare("SELECT id FROM files WHERE parent_id = ? AND deleted_at IS NOT NULL")
+      .bind(child.id)
+      .all<{ id: string }>();
+    for (const gc of grandchildren.results) {
+      await restoreFile(db, gc.id, now);
+    }
+  }
 }
 
 export async function permanentDeleteFile(
   db: D1Database,
   id: string
 ): Promise<{ r2Keys: string[] }> {
+  const r2Keys: string[] = [];
+
+  const children = await db
+    .prepare("SELECT id FROM files WHERE parent_id = ?")
+    .bind(id)
+    .all<{ id: string }>();
+
+  for (const child of children.results) {
+    const childResult = await permanentDeleteFile(db, child.id);
+    r2Keys.push(...childResult.r2Keys);
+  }
+
   const file = await db
     .prepare("SELECT r2_key FROM files WHERE id = ?")
     .bind(id)
@@ -133,7 +172,6 @@ export async function permanentDeleteFile(
     .bind(id)
     .all<{ r2_key: string }>();
 
-  const r2Keys: string[] = [];
   if (file?.r2_key) r2Keys.push(file.r2_key);
   for (const v of versions.results) {
     r2Keys.push(v.r2_key);

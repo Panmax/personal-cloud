@@ -8,6 +8,8 @@ import { BatchActionBar } from "../components/BatchActionBar";
 import { useAppStore } from "../stores/app";
 import { useUpload } from "../hooks/useUpload";
 import { UploadPanel } from "../components/UploadPanel";
+import { PreviewModal } from "../components/PreviewModal";
+import { useKeyboard } from "../hooks/useKeyboard";
 
 interface BreadcrumbItem { id: string | null; name: string; }
 
@@ -15,6 +17,7 @@ export function FileManager() {
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [breadcrumb, setBreadcrumb] = useState<BreadcrumbItem[]>([]);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; file: FileRecord } | null>(null);
+  const [previewFile, setPreviewFile] = useState<FileRecord | null>(null);
 
   const { data: files = [], isLoading } = useFiles(currentFolderId);
   const deleteFile = useDeleteFile();
@@ -52,7 +55,7 @@ export function FileManager() {
 
   const handleOpen = (file: FileRecord) => {
     if (file.is_dir) { navigateTo(file.id, file.name); }
-    else { window.open(`/api/files/${file.id}/download`, "_blank"); }
+    else { setPreviewFile(file); }
   };
 
   const handleContextMenu = (e: React.MouseEvent, file: FileRecord) => {
@@ -78,6 +81,21 @@ export function FileManager() {
     batchAction.mutate({ action: "delete", ids: Array.from(selectedIds) });
     clearSelection();
   };
+
+  useKeyboard({
+    onDelete: () => { if (selectedIds.size > 0) handleBatchDelete(); },
+    onSelectAll: () => { useAppStore.getState().selectAll(files.map((f) => f.id)); },
+    onRename: () => {
+      if (selectedIds.size === 1) {
+        const id = Array.from(selectedIds)[0];
+        const file = files.find((f) => f.id === id);
+        if (file) {
+          const name = prompt("New name:", file.name);
+          if (name && name !== file.name) renameFile.mutate({ id, name });
+        }
+      }
+    },
+  });
 
   return (
     <div className="h-screen flex flex-col bg-white" onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
@@ -109,6 +127,7 @@ export function FileManager() {
         </div>
       )}
       <UploadPanel items={queue} onClear={clearCompleted} />
+      {previewFile && <PreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />}
     </div>
   );
 }

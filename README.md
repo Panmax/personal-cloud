@@ -2,8 +2,7 @@
 
 A fast, self-hosted personal cloud storage built entirely on Cloudflare's edge infrastructure. Zero egress fees, global CDN, serverless — deploy your own Dropbox alternative in minutes.
 
-<!-- TODO: Add a screenshot of the file manager UI here -->
-<!-- ![Personal Cloud Screenshot](./docs/screenshot.png) -->
+![Personal Cloud Screenshot](./docs/file-manager-list.png)
 
 ## Features
 
@@ -20,7 +19,6 @@ A fast, self-hosted personal cloud storage built entirely on Cloudflare's edge i
 - **Single User** — Simple password authentication, designed for personal use
 - **Fully Serverless** — No servers to maintain, scales automatically
 
-<!-- TODO: Add a GIF showing drag-and-drop upload here -->
 
 ## Tech Stack
 
@@ -335,28 +333,26 @@ All cleanup tasks also delete the corresponding R2 objects, so you don't accumul
 
 ## Screenshots
 
-<!-- TODO: Add screenshots -->
-
 ### Login
-<!-- ![Login](./docs/login.png) -->
+![Login](./docs/login.png)
 
 ### File Manager (List View)
-<!-- ![File Manager List](./docs/file-manager-list.png) -->
+![File Manager List](./docs/file-manager-list.png)
 
 ### File Manager (Grid View)
-<!-- ![File Manager Grid](./docs/file-manager-grid.png) -->
+![File Manager Grid](./docs/file-manager-grid.png)
 
 ### File Preview
-<!-- ![Preview](./docs/preview.png) -->
+![Preview](./docs/preview.png)
 
 ### Trash
-<!-- ![Trash](./docs/trash.png) -->
+![Trash](./docs/trash.png)
 
 ### Share Links
-<!-- ![Shares](./docs/shares.png) -->
+![Shares](./docs/shares.png)
 
 ### Share Download Page
-<!-- ![Share Page](./docs/share-page.png) -->
+![Share Page](./docs/share-page.png)
 
 ## Testing
 

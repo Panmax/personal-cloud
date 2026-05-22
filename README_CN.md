@@ -2,8 +2,7 @@
 
 一个快速、自托管的个人云存储，完全基于 Cloudflare 边缘基础设施构建。零出站流量费、全球 CDN 加速、无服务器架构——几分钟即可部署你自己的网盘。
 
-<!-- TODO: 在此添加文件管理器界面截图 -->
-<!-- ![Personal Cloud 截图](./docs/screenshot.png) -->
+![Personal Cloud 截图](./docs/file-manager-list.png)
 
 ## 功能特性
 
@@ -20,7 +19,6 @@
 - **单用户设计** — 简单密码认证，为个人使用优化
 - **完全无服务器** — 无需维护服务器，自动弹性伸缩
 
-<!-- TODO: 在此添加拖拽上传的 GIF 动图 -->
 
 ## 技术栈
 
@@ -336,28 +334,26 @@ echo -n "devpassword" | shasum -a 256 | cut -d' ' -f1
 
 ## 截图
 
-<!-- TODO: 添加截图 -->
-
 ### 登录页
-<!-- ![登录页](./docs/login.png) -->
+![登录页](./docs/login.png)
 
 ### 文件管理器（列表视图）
-<!-- ![列表视图](./docs/file-manager-list.png) -->
+![列表视图](./docs/file-manager-list.png)
 
 ### 文件管理器（网格视图）
-<!-- ![网格视图](./docs/file-manager-grid.png) -->
+![网格视图](./docs/file-manager-grid.png)
 
 ### 文件预览
-<!-- ![预览](./docs/preview.png) -->
+![预览](./docs/preview.png)
 
 ### 回收站
-<!-- ![回收站](./docs/trash.png) -->
+![回收站](./docs/trash.png)
 
 ### 分享链接管理
-<!-- ![分享管理](./docs/shares.png) -->
+![分享管理](./docs/shares.png)
 
 ### 分享下载页
-<!-- ![分享下载](./docs/share-page.png) -->
+![分享下载](./docs/share-page.png)
 
 ## 测试
 

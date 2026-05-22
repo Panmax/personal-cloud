@@ -27,7 +27,7 @@ export function FileItem({ file, selected, onSelect, onOpen, onContextMenu }: Pr
 
   return (
     <div
-      className={`flex items-center px-4 py-2.5 cursor-pointer transition-colors duration-150 border-b border-slate-100 ${
+      className={`flex items-center px-4 py-2.5 cursor-pointer transition-colors duration-150 border-b border-slate-100 select-none ${
         selected ? "bg-brand-50 border-l-2 border-l-brand-500" : "hover:bg-slate-50"
       }`}
       onClick={(e) => onSelect(file.id, e.ctrlKey || e.metaKey)}

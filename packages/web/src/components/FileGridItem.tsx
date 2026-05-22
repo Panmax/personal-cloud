@@ -21,7 +21,7 @@ export function FileGridItem({ file, selected, onSelect, onOpen, onContextMenu }
 
   return (
     <div
-      className={`flex flex-col items-center p-4 rounded-xl cursor-pointer transition-all duration-150 border ${
+      className={`flex flex-col items-center p-4 rounded-xl cursor-pointer transition-all duration-150 border select-none ${
         selected ? "border-brand-300 bg-brand-50 shadow-sm" : "border-transparent hover:bg-slate-50 hover:border-slate-200"
       }`}
       onClick={(e) => onSelect(file.id, e.ctrlKey || e.metaKey)}

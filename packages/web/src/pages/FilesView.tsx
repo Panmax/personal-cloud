@@ -10,7 +10,7 @@ import { BatchActionBar } from "../components/BatchActionBar";
 import { useAppStore } from "../stores/app";
 import { useUpload } from "../hooks/useUpload";
 import { UploadPanel } from "../components/UploadPanel";
-import { PreviewModal } from "../components/PreviewModal";
+import { PreviewModal, getPreviewType } from "../components/PreviewModal";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { ShareDialog } from "../components/ShareDialog";
 import { MoveDialog } from "../components/MoveDialog";
@@ -91,8 +91,21 @@ export function FilesView() {
   }, [breadcrumb, clearSelection]);
 
   const handleOpen = (file: FileRecord) => {
-    if (file.is_dir) { navigateTo(file.id, file.name); }
-    else { setPreviewFile(file); }
+    if (file.is_dir) {
+      navigateTo(file.id, file.name);
+    } else if (getPreviewType(file.mime_type) !== "none") {
+      setPreviewFile(file);
+    } else {
+      const token = localStorage.getItem("token");
+      fetch(`${BASE}/api/files/${file.id}/download`, { headers: { Authorization: `Bearer ${token}` } })
+        .then((res) => res.blob())
+        .then((blob) => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url; a.download = file.name; a.click();
+          URL.revokeObjectURL(url);
+        });
+    }
   };
 
   const handleContextMenu = (e: React.MouseEvent, file: FileRecord) => {

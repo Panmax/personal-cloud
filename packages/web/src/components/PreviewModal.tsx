@@ -7,7 +7,7 @@ interface Props {
   onClose: () => void;
 }
 
-function getPreviewType(mime: string | null): "image" | "video" | "audio" | "pdf" | "text" | "none" {
+export function getPreviewType(mime: string | null): "image" | "video" | "audio" | "pdf" | "text" | "none" {
   if (!mime) return "none";
   if (mime.startsWith("image/")) return "image";
   if (mime.startsWith("video/")) return "video";
@@ -21,9 +21,11 @@ export function PreviewModal({ file, onClose }: Props) {
   const previewType = getPreviewType(file.mime_type);
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [textContent, setTextContent] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(previewType !== "none");
 
   useEffect(() => {
+    if (previewType === "none") return;
+
     const token = localStorage.getItem("token");
     fetch(`${BASE}/api/files/${file.id}/download`, {
       headers: { Authorization: `Bearer ${token}` },

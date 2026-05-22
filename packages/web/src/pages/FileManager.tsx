@@ -6,6 +6,8 @@ import { Breadcrumb } from "../components/Breadcrumb";
 import { ContextMenu } from "../components/ContextMenu";
 import { BatchActionBar } from "../components/BatchActionBar";
 import { useAppStore } from "../stores/app";
+import { useUpload } from "../hooks/useUpload";
+import { UploadPanel } from "../components/UploadPanel";
 
 interface BreadcrumbItem { id: string | null; name: string; }
 
@@ -20,6 +22,21 @@ export function FileManager() {
   const createFolder = useCreateFolder();
   const renameFile = useRenameFile();
   const { selectedIds, clearSelection } = useAppStore();
+  const { queue, addFiles, clearCompleted } = useUpload(currentFolderId);
+  const [dragging, setDragging] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setDragging(true); };
+  const handleDragLeave = () => setDragging(false);
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault(); setDragging(false);
+    if (e.dataTransfer.files.length > 0) addFiles(e.dataTransfer.files);
+  };
+  const handleFileInput = () => {
+    const input = document.createElement("input");
+    input.type = "file"; input.multiple = true;
+    input.onchange = () => { if (input.files) addFiles(input.files); };
+    input.click();
+  };
 
   const navigateTo = useCallback((id: string | null, name?: string) => {
     if (id === null) {
@@ -63,13 +80,14 @@ export function FileManager() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-white">
+    <div className="h-screen flex flex-col bg-white" onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
       <header className="flex items-center justify-between px-4 py-3 border-b">
         <h1 className="text-lg font-bold">Personal Cloud</h1>
         <div className="flex gap-2">
           <button onClick={handleNewFolder} className="text-sm px-3 py-1 bg-gray-100 rounded hover:bg-gray-200">
             New Folder
           </button>
+          <button onClick={handleFileInput} className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Upload</button>
         </div>
       </header>
       <Breadcrumb path={breadcrumb} onNavigate={(id) => {
@@ -85,6 +103,12 @@ export function FileManager() {
       {contextMenu && (
         <ContextMenu x={contextMenu.x} y={contextMenu.y} items={getContextMenuItems(contextMenu.file)} onClose={() => setContextMenu(null)} />
       )}
+      {dragging && (
+        <div className="fixed inset-0 bg-blue-500/10 border-4 border-dashed border-blue-500 z-50 flex items-center justify-center">
+          <p className="text-xl font-medium text-blue-700">Drop files to upload</p>
+        </div>
+      )}
+      <UploadPanel items={queue} onClear={clearCompleted} />
     </div>
   );
 }

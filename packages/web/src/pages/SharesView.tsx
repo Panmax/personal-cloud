@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Share2, Copy, Trash2, Image, Link, Check } from "lucide-react";
+import { Share2, Trash2, Image, Link, Check } from "lucide-react";
 import { useShares, useRevokeShare } from "../hooks/useFiles";
 import { BASE } from "../api/client";
 
@@ -19,7 +19,7 @@ function getExpiryStatus(expiresAt: string | null): { label: string; className: 
   return { label: `${days}d remaining`, className: "text-amber-600" };
 }
 
-function CopyBtn({ text, title }: { text: string; title: string }) {
+function CopyBtn({ text, title, icon: Icon }: { text: string; title: string; icon: typeof Link }) {
   const [copied, setCopied] = useState(false);
   const handleCopy = () => {
     navigator.clipboard.writeText(text);
@@ -32,7 +32,7 @@ function CopyBtn({ text, title }: { text: string; title: string }) {
       className="p-1.5 rounded-md hover:bg-slate-100 text-slate-500 hover:text-brand-600 transition-colors"
       title={title}
     >
-      {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+      {copied ? <Check className="w-4 h-4 text-green-500" /> : <Icon className="w-4 h-4" />}
     </button>
   );
 }
@@ -100,9 +100,9 @@ export function SharesView() {
                   </p>
                 </div>
                 {isImageLink && (
-                  <CopyBtn text={rawUrl} title="Copy raw URL" />
+                  <CopyBtn text={rawUrl} title="Copy image URL" icon={Image} />
                 )}
-                <CopyBtn text={`${window.location.origin}/s/${share.id}`} title="Copy share page" />
+                <CopyBtn text={`${window.location.origin}/s/${share.id}`} title="Copy share page" icon={Link} />
                 <button
                   onClick={() => { if (confirm("Revoke this share link?")) revokeShare.mutate(share.id); }}
                   className="p-1.5 rounded-md hover:bg-red-50 text-slate-500 hover:text-red-600 transition-colors"

@@ -61,4 +61,31 @@ publicRoutes.post("/:id/download", async (c) => {
   return new Response(object.body, { headers });
 });
 
+publicRoutes.get("/:id/raw", async (c) => {
+  const share = await getShare(c.env.DB, c.req.param("id"));
+  if (!share) return c.notFound();
+
+  if (share.expires_at && new Date(share.expires_at) < new Date()) {
+    return c.notFound();
+  }
+
+  if (share.password) {
+    return c.json({ error: "Password-protected shares cannot be used as direct links" }, 403);
+  }
+
+  const file = await getFile(c.env.DB, share.file_id);
+  if (!file || !file.r2_key || file.deleted_at) return c.notFound();
+
+  await incrementDownloadCount(c.env.DB, share.id);
+
+  const object = await c.env.BUCKET.get(file.r2_key);
+  if (!object) return c.notFound();
+
+  const headers = new Headers();
+  headers.set("Content-Type", file.mime_type || "application/octet-stream");
+  headers.set("Cache-Control", "public, max-age=86400");
+
+  return new Response(object.body, { headers });
+});
+
 export { publicRoutes };

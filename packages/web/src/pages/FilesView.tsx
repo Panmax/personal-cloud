@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { Search, LayoutList, LayoutGrid, FolderPlus, Upload } from "lucide-react";
 import { useFiles, useDeleteFile, useBatchAction, useCreateFolder, useRenameFile, useSearch } from "../hooks/useFiles";
-import { BASE } from "../api/client";
+import { BASE, api } from "../api/client";
 import type { FileRecord } from "../hooks/useFiles";
 import { FileList } from "../components/FileList";
 import { Breadcrumb } from "../components/Breadcrumb";
@@ -13,6 +13,7 @@ import { UploadPanel } from "../components/UploadPanel";
 import { PreviewModal, getPreviewType } from "../components/PreviewModal";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { ShareDialog } from "../components/ShareDialog";
+import { toast } from "../components/Toast";
 import { MoveDialog } from "../components/MoveDialog";
 
 interface BreadcrumbItem { id: string | null; name: string; }
@@ -117,15 +118,35 @@ export function FilesView() {
     if (name) createFolder.mutate({ name, parent_id: currentFolderId || undefined });
   };
 
-  const getContextMenuItems = (file: FileRecord) => [
-    { label: "Rename", action: () => {
-      const name = prompt("New name:", file.name);
-      if (name && name !== file.name) renameFile.mutate({ id: file.id, name });
-    }},
-    { label: "Download", action: () => downloadFile(file) },
-    { label: "Share", action: () => setShareFile(file) },
-    { label: "Delete", action: () => deleteFile.mutate(file.id), danger: true },
-  ];
+  const copyImageUrl = async (file: FileRecord) => {
+    try {
+      const res = await api.post<{ id: string }>("/api/shares", {
+        file_id: file.id,
+        expires_in: null,
+      });
+      const rawUrl = `${BASE}/s/${res.id}/raw`;
+      await navigator.clipboard.writeText(rawUrl);
+      toast("Image URL copied", "success");
+    } catch {
+      toast("Failed to create image URL", "error");
+    }
+  };
+
+  const getContextMenuItems = (file: FileRecord) => {
+    const items = [
+      { label: "Rename", action: () => {
+        const name = prompt("New name:", file.name);
+        if (name && name !== file.name) renameFile.mutate({ id: file.id, name });
+      }},
+      { label: "Download", action: () => downloadFile(file) },
+      { label: "Share", action: () => setShareFile(file) },
+    ];
+    if (file.mime_type?.startsWith("image/")) {
+      items.push({ label: "Copy Image URL", action: () => copyImageUrl(file) });
+    }
+    items.push({ label: "Delete", action: () => deleteFile.mutate(file.id), danger: true });
+    return items;
+  };
 
   const handleBatchDelete = () => {
     batchAction.mutate({ action: "delete", ids: Array.from(selectedIds) });
@@ -226,7 +247,7 @@ export function FilesView() {
       )}
       <UploadPanel items={queue} onClear={clearCompleted} />
       {previewFile && <PreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />}
-      {shareFile && <ShareDialog fileId={shareFile.id} fileName={shareFile.name} onClose={() => setShareFile(null)} />}
+      {shareFile && <ShareDialog fileId={shareFile.id} fileName={shareFile.name} mimeType={shareFile.mime_type} onClose={() => setShareFile(null)} />}
       {showMoveDialog && (
         <MoveDialog
           selectedIds={Array.from(selectedIds)}

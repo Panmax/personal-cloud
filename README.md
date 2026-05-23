@@ -1,5 +1,7 @@
 # Personal Cloud
 
+[中文文档](./README_CN.md)
+
 A fast, self-hosted personal cloud storage built entirely on Cloudflare's edge infrastructure. Zero egress fees, global CDN, serverless — deploy your own Dropbox alternative in minutes.
 
 ![Personal Cloud Screenshot](./docs/file-manager-list.png)
@@ -7,14 +9,16 @@ A fast, self-hosted personal cloud storage built entirely on Cloudflare's edge i
 ## Features
 
 - **File Management** — Upload, download, rename, move, delete, create folders
-- **Drag & Drop Upload** — Drop files anywhere, multipart chunked upload for large files with real-time progress
+- **Drag & Drop Upload** — Drop files or folders anywhere, multipart chunked upload for large files with real-time progress
 - **File Preview** — Images, video, audio, PDF, and text/code previewed inline
-- **Grid & List Views** — Toggle between compact list and visual grid layout
+- **Grid & List Views** — Toggle between compact list and visual grid layout with image thumbnails
 - **Search** — Fuzzy search across all file names
 - **Version History** — Automatic versioning when re-uploading same-named files, revert to any version
-- **Trash & Recovery** — Soft delete with 30-day auto-cleanup, restore anytime
+- **Trash & Recovery** — Soft delete with 30-day auto-cleanup, restore anytime, one-click empty trash
 - **Share Links** — Password-protected, time-limited share links for public download
-- **Keyboard Shortcuts** — Delete, Ctrl+A select all, F2 rename
+- **Image Hosting** — Right-click "Copy Image URL" for direct image links, usable in Markdown/HTML
+- **WebDAV (Read-Only)** — Stream videos directly from VLC, IINA, Infuse, or mount in Finder
+- **Keyboard Shortcuts** — Delete, Ctrl+A select all, Shift+click range select, F2 rename
 - **Toast Notifications** — Visual feedback for all operations (loading → success/error)
 - **Single User** — Simple password authentication, designed for personal use
 - **Fully Serverless** — No servers to maintain, scales automatically
@@ -269,6 +273,31 @@ All cleanup tasks also delete the corresponding R2 objects, so you don't accumul
 | Upload same name in **different directory** | Creates an independent file (no deduplication across directories) |
 | Upload file ≥ 10MB | Uses multipart upload: chunks sent directly to R2, then metadata written to D1 |
 
+## WebDAV Access
+
+Connect media players and file managers via read-only WebDAV:
+
+| Setting | Value |
+|---------|-------|
+| Server URL | `https://your-api-domain/dav/` |
+| Username | anything (ignored) |
+| Password | Your login password |
+| Access | Read-only (browse + stream/download) |
+
+**Supported clients**: VLC, IINA, Infuse, macOS Finder, Windows Explorer, any WebDAV client.
+
+**Streaming**: Supports HTTP Range requests — videos play immediately with seek support, no need to download first.
+
+## Image Hosting
+
+Use your cloud as an image hosting service:
+
+1. Right-click any image → **"Copy Image URL"**
+2. A permanent, public direct link is created automatically
+3. Use in Markdown: `![alt](https://your-api-domain/s/abc12345/raw)`
+
+Image links are managed in the Shared Links page (tagged as "Image Link") and can be revoked anytime.
+
 ## API Endpoints
 
 <details>
@@ -310,6 +339,7 @@ All cleanup tasks also delete the corresponding R2 objects, so you don't accumul
 | GET | `/api/trash` | List trashed files |
 | POST | `/api/trash/:id/restore` | Restore from trash |
 | DELETE | `/api/trash/:id` | Permanently delete |
+| DELETE | `/api/trash` | Empty trash (delete all) |
 
 ### Search
 | Method | Path | Description |
@@ -328,6 +358,15 @@ All cleanup tasks also delete the corresponding R2 objects, so you don't accumul
 |--------|------|-------------|
 | GET | `/s/:id` | Get shared file info |
 | POST | `/s/:id/download` | Download shared file |
+| GET | `/s/:id/raw` | Direct file access (image hosting) |
+
+### WebDAV (Basic Auth)
+| Method | Path | Description |
+|--------|------|-------------|
+| OPTIONS | `/dav/*` | DAV capability discovery |
+| PROPFIND | `/dav/*` | List directory / file properties |
+| GET | `/dav/*` | Download file (supports Range) |
+| HEAD | `/dav/*` | File metadata |
 
 </details>
 
@@ -374,15 +413,15 @@ personal-cloud/
 │   │   │   ├── index.ts     # Hono app entry + route mounting
 │   │   │   ├── types.ts     # TypeScript interfaces
 │   │   │   ├── cron.ts      # Scheduled cleanup tasks
-│   │   │   ├── middleware/   # JWT auth middleware
-│   │   │   ├── routes/       # API route handlers
+│   │   │   ├── middleware/   # JWT auth + Basic Auth middleware
+│   │   │   ├── routes/       # API route handlers + WebDAV
 │   │   │   ├── db/          # D1 query helpers
-│   │   │   └── utils/       # JWT, nanoid, helpers
+│   │   │   └── utils/       # JWT, nanoid, DAV XML helpers
 │   │   ├── migrations/      # D1 SQL schema
 │   │   └── test/            # Integration tests
 │   └── web/                 # React SPA (Cloudflare Pages)
 │       └── src/
-│           ├── pages/       # FilesView, TrashView, SharesView, Login, SharePage
+│           ├── pages/       # FilesView, TrashView, SharesView, WebDAVView, Login, SharePage
 │           ├── components/  # Reusable UI components
 │           ├── hooks/       # React Query hooks, upload, keyboard
 │           ├── stores/      # Zustand state management

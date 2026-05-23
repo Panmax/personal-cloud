@@ -1,5 +1,7 @@
 # Personal Cloud — 个人网盘
 
+[English](./README.md)
+
 一个快速、自托管的个人云存储，完全基于 Cloudflare 边缘基础设施构建。零出站流量费、全球 CDN 加速、无服务器架构——几分钟即可部署你自己的网盘。
 
 ![Personal Cloud 截图](./docs/file-manager-list.png)
@@ -7,14 +9,16 @@
 ## 功能特性
 
 - **文件管理** — 上传、下载、重命名、移动、删除、创建文件夹
-- **拖拽上传** — 拖入文件即上传，大文件自动分片并显示实时进度
+- **拖拽上传** — 支持拖入文件或整个文件夹，大文件自动分片并显示实时进度
 - **文件预览** — 图片、视频、音频、PDF、文本/代码在线预览
-- **网格/列表视图** — 自由切换紧凑列表和可视化网格布局
+- **网格/列表视图** — 自由切换紧凑列表和可视化网格布局，图片显示缩略图
 - **文件搜索** — 按文件名模糊搜索
 - **版本历史** — 同名文件重新上传自动创建版本，可回退到任意历史版本
-- **回收站** — 软删除 + 30 天自动清理，随时恢复
+- **回收站** — 软删除 + 30 天自动清理，随时恢复，支持一键清空
 - **分享链接** — 支持密码保护和过期时间的公开下载链接
-- **快捷键** — Delete 删除、Ctrl+A 全选、F2 重命名
+- **图床功能** — 右键图片"Copy Image URL"获取直链，可直接用于 Markdown/HTML
+- **WebDAV（只读）** — 通过 VLC、IINA、Infuse 等播放器直接串流视频，或在 Finder 中挂载
+- **快捷键** — Delete 删除、Ctrl+A 全选、Shift+点击 范围选择、F2 重命名
 - **操作反馈** — 所有操作都有 loading → 成功/失败的 toast 通知
 - **单用户设计** — 简单密码认证，为个人使用优化
 - **完全无服务器** — 无需维护服务器，自动弹性伸缩
@@ -270,6 +274,31 @@ echo -n "devpassword" | shasum -a 256 | cut -d' ' -f1
 | **不同目录**下上传同名文件 | 创建独立文件（不跨目录去重） |
 | 上传 ≥10MB 的文件 | 使用分片上传：分块直传 R2，完成后写入 D1 元数据 |
 
+## WebDAV 访问
+
+通过只读 WebDAV 连接媒体播放器和文件管理器：
+
+| 设置 | 值 |
+|------|---|
+| 服务器地址 | `https://你的API域名/dav/` |
+| 用户名 | 任意填写（会被忽略） |
+| 密码 | 你的登录密码 |
+| 权限 | 只读（浏览目录 + 流式播放/下载） |
+
+**支持的客户端**：VLC、IINA、Infuse、macOS Finder、Windows 资源管理器、任何 WebDAV 客户端。
+
+**流式播放**：支持 HTTP Range 请求——视频可以边下边播，拖动进度条即时响应，无需等待完整下载。
+
+## 图床功能
+
+将网盘用作图片托管服务：
+
+1. 右键点击任意图片 → **"Copy Image URL"**
+2. 自动创建永久公开直链
+3. 在 Markdown 中使用：`![alt](https://你的API域名/s/abc12345/raw)`
+
+图床链接在"Shared Links"页面统一管理（标记为"Image Link"），可随时撤销。
+
 ## API 接口
 
 <details>
@@ -311,6 +340,7 @@ echo -n "devpassword" | shasum -a 256 | cut -d' ' -f1
 | GET | `/api/trash` | 列出回收站文件 |
 | POST | `/api/trash/:id/restore` | 恢复文件 |
 | DELETE | `/api/trash/:id` | 永久删除 |
+| DELETE | `/api/trash` | 一键清空回收站 |
 
 ### 搜索
 | 方法 | 路径 | 说明 |
@@ -329,6 +359,15 @@ echo -n "devpassword" | shasum -a 256 | cut -d' ' -f1
 |------|------|------|
 | GET | `/s/:id` | 获取分享文件信息 |
 | POST | `/s/:id/download` | 下载分享文件 |
+| GET | `/s/:id/raw` | 直接访问文件内容（图床） |
+
+### WebDAV（Basic Auth）
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| OPTIONS | `/dav/*` | DAV 能力发现 |
+| PROPFIND | `/dav/*` | 列出目录/文件属性 |
+| GET | `/dav/*` | 下载文件（支持 Range） |
+| HEAD | `/dav/*` | 获取文件元信息 |
 
 </details>
 
@@ -383,7 +422,7 @@ personal-cloud/
 │   │   └── test/            # 集成测试
 │   └── web/                 # React SPA（Cloudflare Pages 前端）
 │       └── src/
-│           ├── pages/       # 文件视图、回收站、分享管理、登录、分享页
+│           ├── pages/       # 文件视图、回收站、分享管理、WebDAV、登录、分享页
 │           ├── components/  # 可复用 UI 组件
 │           ├── hooks/       # React Query hooks、上传、快捷键
 │           ├── stores/      # Zustand 状态管理

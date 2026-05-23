@@ -3,7 +3,7 @@ import { Sidebar } from "./Sidebar";
 import { useAppStore } from "../stores/app";
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { currentView, setCurrentView, setAuthenticated } = useAppStore();
+  const setAuthenticated = useAppStore((s) => s.setAuthenticated);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -14,11 +14,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="h-screen flex bg-slate-50">
-      <Sidebar
-        currentView={currentView}
-        onViewChange={setCurrentView}
-        onLogout={handleLogout}
-      />
+      <Sidebar onLogout={handleLogout} />
       <main className="flex-1 flex flex-col overflow-hidden bg-white rounded-tl-xl shadow-sm">
         {children}
       </main>

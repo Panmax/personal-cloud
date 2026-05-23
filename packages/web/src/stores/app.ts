@@ -5,14 +5,12 @@ interface AppState {
   currentPath: string[];
   selectedIds: Set<string>;
   viewMode: "list" | "grid";
-  currentView: "files" | "trash" | "shares";
   setAuthenticated: (v: boolean) => void;
   setCurrentPath: (path: string[]) => void;
   toggleSelect: (id: string) => void;
   selectAll: (ids: string[]) => void;
   clearSelection: () => void;
   setViewMode: (mode: "list" | "grid") => void;
-  setCurrentView: (view: "files" | "trash" | "shares") => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -20,7 +18,6 @@ export const useAppStore = create<AppState>((set) => ({
   currentPath: [],
   selectedIds: new Set(),
   viewMode: "list",
-  currentView: "files",
   setAuthenticated: (v) => set({ isAuthenticated: v }),
   setCurrentPath: (path) => set({ currentPath: path }),
   toggleSelect: (id) =>
@@ -33,5 +30,4 @@ export const useAppStore = create<AppState>((set) => ({
   selectAll: (ids) => set({ selectedIds: new Set(ids) }),
   clearSelection: () => set({ selectedIds: new Set() }),
   setViewMode: (mode) => set({ viewMode: mode }),
-  setCurrentView: (view) => set({ currentView: view }),
 }));

@@ -19,17 +19,6 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-function MainApp() {
-  const currentView = useAppStore((s) => s.currentView);
-  return (
-    <Layout>
-      {currentView === "files" && <FilesView />}
-      {currentView === "trash" && <TrashView />}
-      {currentView === "shares" && <SharesView />}
-    </Layout>
-  );
-}
-
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -37,7 +26,10 @@ export function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/s/:shareId" element={<SharePage />} />
-          <Route path="/*" element={<ProtectedRoute><MainApp /></ProtectedRoute>} />
+          <Route path="/" element={<ProtectedRoute><Layout><FilesView /></Layout></ProtectedRoute>} />
+          <Route path="/trash" element={<ProtectedRoute><Layout><TrashView /></Layout></ProtectedRoute>} />
+          <Route path="/shares" element={<ProtectedRoute><Layout><SharesView /></Layout></ProtectedRoute>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
       <ToastContainer />

@@ -15,8 +15,9 @@ import { dav } from "./routes/dav";
 
 const app = new Hono<{ Bindings: Env }>();
 
-app.use("/*", cors({ exposeHeaders: ["etag"] }));
 app.route("/dav", dav);
+app.use("/api/*", cors({ exposeHeaders: ["etag"] }));
+app.use("/s/*", cors());
 app.route("/api/auth", auth);
 app.route("/s", publicRoutes);
 app.use("/api/*", authMiddleware);

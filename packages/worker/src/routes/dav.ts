@@ -6,21 +6,22 @@ import { buildMultistatus } from "../utils/dav-xml";
 
 const dav = new Hono<{ Bindings: Env }>();
 
-dav.use("/*", basicAuthMiddleware);
-
 function getPathSegments(path: string): string[] {
   return path.split("/").filter(Boolean).map(decodeURIComponent);
 }
 
-dav.on("OPTIONS", ["/*", "/"], (c) => {
+dav.on("OPTIONS", ["/*", "/"], () => {
   return new Response(null, {
     status: 200,
     headers: {
       DAV: "1",
       Allow: "OPTIONS, PROPFIND, GET, HEAD",
+      "MS-Author-Via": "DAV",
     },
   });
 });
+
+dav.use("/*", basicAuthMiddleware);
 
 dav.on("PROPFIND", ["/*", "/"], async (c) => {
   const path = c.req.path.replace(/^\/dav\/?/, "");
@@ -32,7 +33,7 @@ dav.on("PROPFIND", ["/*", "/"], async (c) => {
     const xml = buildMultistatus("/dav/", null, children, true);
     return new Response(xml, {
       status: 207,
-      headers: { "Content-Type": "application/xml; charset=utf-8" },
+      headers: { "Content-Type": "application/xml; charset=utf-8", DAV: "1" },
     });
   }
 

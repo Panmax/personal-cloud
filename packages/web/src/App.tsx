@@ -6,6 +6,7 @@ import { Layout } from "./components/Layout";
 import { FilesView } from "./pages/FilesView";
 import { TrashView } from "./pages/TrashView";
 import { SharesView } from "./pages/SharesView";
+import { WebDAVView } from "./pages/WebDAVView";
 import { useAppStore } from "./stores/app";
 import { ToastContainer } from "./components/Toast";
 
@@ -29,6 +30,7 @@ export function App() {
           <Route path="/" element={<ProtectedRoute><Layout><FilesView /></Layout></ProtectedRoute>} />
           <Route path="/trash" element={<ProtectedRoute><Layout><TrashView /></Layout></ProtectedRoute>} />
           <Route path="/shares" element={<ProtectedRoute><Layout><SharesView /></Layout></ProtectedRoute>} />
+          <Route path="/webdav" element={<ProtectedRoute><Layout><WebDAVView /></Layout></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

@@ -11,10 +11,12 @@ import { trash } from "./routes/trash";
 import { search } from "./routes/search";
 import { shares } from "./routes/shares";
 import { publicRoutes } from "./routes/public";
+import { dav } from "./routes/dav";
 
 const app = new Hono<{ Bindings: Env }>();
 
 app.use("/*", cors({ exposeHeaders: ["etag"] }));
+app.route("/dav", dav);
 app.route("/api/auth", auth);
 app.route("/s", publicRoutes);
 app.use("/api/*", authMiddleware);

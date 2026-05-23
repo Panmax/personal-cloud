@@ -1,10 +1,11 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { FolderOpen, Trash2, Share2, HardDrive, LogOut } from "lucide-react";
+import { FolderOpen, Trash2, Share2, Globe, HardDrive, LogOut } from "lucide-react";
 
 const navItems = [
   { path: "/", label: "All Files", icon: FolderOpen },
   { path: "/trash", label: "Trash", icon: Trash2 },
   { path: "/shares", label: "Shared Links", icon: Share2 },
+  { path: "/webdav", label: "WebDAV", icon: Globe },
 ];
 
 interface Props {

@@ -280,10 +280,10 @@ export async function getShare(
     .first<ShareRecord>();
 }
 
-export async function listShares(db: D1Database): Promise<(ShareRecord & { file_name: string | null })[]> {
+export async function listShares(db: D1Database): Promise<(ShareRecord & { file_name: string | null; file_mime_type: string | null })[]> {
   const result = await db
-    .prepare("SELECT shares.*, files.name as file_name FROM shares LEFT JOIN files ON shares.file_id = files.id ORDER BY shares.created_at DESC")
-    .all<ShareRecord & { file_name: string | null }>();
+    .prepare("SELECT shares.*, files.name as file_name, files.mime_type as file_mime_type FROM shares LEFT JOIN files ON shares.file_id = files.id ORDER BY shares.created_at DESC")
+    .all<ShareRecord & { file_name: string | null; file_mime_type: string | null }>();
   return result.results;
 }
 

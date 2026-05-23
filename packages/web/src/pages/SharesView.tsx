@@ -41,10 +41,16 @@ export function SharesView() {
         <div className="flex-1 overflow-y-auto">
           {shares.map((share) => {
             const expiry = getExpiryStatus(share.expires_at);
+            const isImageLink = !share.password && !share.expires_at && share.file_mime_type?.startsWith("image/");
             return (
               <div key={share.id} className="flex items-center px-5 py-3 border-b border-slate-100 hover:bg-slate-50 transition-colors">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-slate-700 truncate font-medium">{share.file_name || "Unknown file"}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm text-slate-700 truncate font-medium">{share.file_name || "Unknown file"}</p>
+                    {isImageLink && (
+                      <span className="text-[10px] px-1.5 py-0.5 bg-purple-50 text-purple-600 rounded-full font-medium flex-shrink-0">Image Link</span>
+                    )}
+                  </div>
                   <p className="text-xs text-slate-400 mt-0.5">
                     Created {formatDate(share.created_at)} · {share.download_count} downloads · <span className={expiry.className}>{expiry.label}</span>
                   </p>

@@ -177,6 +177,7 @@ interface ShareInfo {
   id: string;
   file_id: string;
   file_name: string | null;
+  file_mime_type: string | null;
   password: string | null;
   expires_at: string | null;
   download_count: number;

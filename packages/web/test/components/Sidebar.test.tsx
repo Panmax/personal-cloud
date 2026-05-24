@@ -1,14 +1,20 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { Sidebar } from "../../src/components/Sidebar";
 
 function renderSidebar(path = "/") {
   const onLogout = vi.fn();
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
   render(
-    <MemoryRouter initialEntries={[path]}>
-      <Sidebar onLogout={onLogout} />
-    </MemoryRouter>
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={[path]}>
+        <Sidebar onLogout={onLogout} />
+      </MemoryRouter>
+    </QueryClientProvider>
   );
   return { onLogout };
 }

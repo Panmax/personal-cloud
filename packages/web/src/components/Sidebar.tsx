@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { FolderOpen, Trash2, Share2, Globe, HardDrive, LogOut } from "lucide-react";
+import { useStats } from "../hooks/useFiles";
 
 const navItems = [
   { path: "/", label: "All Files", icon: FolderOpen },
@@ -13,14 +14,27 @@ interface Props {
   onNavItemClick?: () => void;
 }
 
+function formatBytes(bytes: number): string {
+  if (bytes === 0) return "0 B";
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return `${(bytes / Math.pow(1024, i)).toFixed(i > 0 ? 1 : 0)} ${units[i]}`;
+}
+
 export function Sidebar({ onLogout, onNavItemClick }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { data: stats } = useStats();
 
   const handleNav = (path: string) => {
     navigate(path);
     onNavItemClick?.();
   };
+
+  const usedBytes = stats?.storage.used ?? 0;
+  const freeAllowance = stats?.storage.free_allowance ?? 10 * 1024 * 1024 * 1024;
+  const usagePercent = Math.min(100, (usedBytes / freeAllowance) * 100);
+  const monthlyCost = stats?.cost.monthly_usd ?? 0;
 
   return (
     <aside className="w-56 bg-slate-50 border-r border-slate-200 flex flex-col h-full">
@@ -48,6 +62,33 @@ export function Sidebar({ onLogout, onNavItemClick }: Props) {
           );
         })}
       </nav>
+
+      {stats && (
+        <div className="px-4 py-3 border-t border-slate-200">
+          <div className="flex items-baseline justify-between mb-1.5">
+            <span className="text-xs font-medium text-slate-600">Storage</span>
+            <span className="text-[10px] text-slate-400">
+              {formatBytes(usedBytes)} / {formatBytes(freeAllowance)}
+            </span>
+          </div>
+          <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${
+                usagePercent > 90 ? "bg-red-500" : usagePercent > 70 ? "bg-amber-500" : "bg-brand-500"
+              }`}
+              style={{ width: `${usagePercent}%` }}
+            />
+          </div>
+          <div className="flex items-baseline justify-between mt-1.5">
+            <span className="text-[10px] text-slate-400">
+              {stats.counts.files} files · {stats.counts.folders} folders
+            </span>
+            {monthlyCost > 0 && (
+              <span className="text-[10px] text-slate-400">${monthlyCost}/mo</span>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="px-3 py-3 border-t border-slate-200">
         <button

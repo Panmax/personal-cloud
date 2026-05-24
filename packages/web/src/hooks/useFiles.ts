@@ -209,4 +209,33 @@ export function useRevokeShare() {
   });
 }
 
-export type { FileRecord, ShareInfo };
+interface StatsResponse {
+  storage: {
+    used: number;
+    files_size: number;
+    versions_size: number;
+    trash_size: number;
+    free_allowance: number;
+  };
+  counts: {
+    files: number;
+    folders: number;
+    versions: number;
+    trash: number;
+    shares: number;
+    total_downloads: number;
+  };
+  cost: {
+    monthly_usd: number;
+  };
+}
+
+export function useStats() {
+  return useQuery({
+    queryKey: ["stats"],
+    queryFn: () => api.get<StatsResponse>("/api/stats"),
+    staleTime: 60_000,
+  });
+}
+
+export type { FileRecord, ShareInfo, StatsResponse };

@@ -10,6 +10,7 @@ import { versions } from "./routes/versions";
 import { trash } from "./routes/trash";
 import { search } from "./routes/search";
 import { shares } from "./routes/shares";
+import { stats } from "./routes/stats";
 import { publicRoutes } from "./routes/public";
 import { dav } from "./routes/dav";
 
@@ -27,6 +28,7 @@ app.route("/api/upload", upload);
 app.route("/api/trash", trash);
 app.route("/api/search", search);
 app.route("/api/shares", shares);
+app.route("/api/stats", stats);
 
 export default {
   fetch: app.fetch,

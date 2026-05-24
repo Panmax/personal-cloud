@@ -32,8 +32,6 @@ export function Sidebar({ onLogout, onNavItemClick }: Props) {
   };
 
   const usedBytes = stats?.storage.used ?? 0;
-  const freeAllowance = stats?.storage.free_allowance ?? 10 * 1024 * 1024 * 1024;
-  const usagePercent = Math.min(100, (usedBytes / freeAllowance) * 100);
   const monthlyCost = stats?.cost.monthly_usd ?? 0;
 
   return (
@@ -65,28 +63,15 @@ export function Sidebar({ onLogout, onNavItemClick }: Props) {
 
       {stats && (
         <div className="px-4 py-3 border-t border-slate-200">
-          <div className="flex items-baseline justify-between mb-1.5">
-            <span className="text-xs font-medium text-slate-600">Storage</span>
-            <span className="text-[10px] text-slate-400">
-              {formatBytes(usedBytes)} / {formatBytes(freeAllowance)}
-            </span>
-          </div>
-          <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all ${
-                usagePercent > 90 ? "bg-red-500" : usagePercent > 70 ? "bg-amber-500" : "bg-brand-500"
-              }`}
-              style={{ width: `${usagePercent}%` }}
-            />
-          </div>
-          <div className="flex items-baseline justify-between mt-1.5">
-            <span className="text-[10px] text-slate-400">
-              {stats.counts.files} files · {stats.counts.folders} folders
-            </span>
+          <div className="flex items-baseline justify-between">
+            <span className="text-xs font-medium text-slate-600">{formatBytes(usedBytes)}</span>
             {monthlyCost > 0 && (
               <span className="text-[10px] text-slate-400">${monthlyCost}/mo</span>
             )}
           </div>
+          <span className="text-[10px] text-slate-400">
+            {stats.counts.files} files · {stats.counts.folders} folders
+          </span>
         </div>
       )}
 

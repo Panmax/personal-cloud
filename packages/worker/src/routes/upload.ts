@@ -94,19 +94,15 @@ upload.post("/complete", async (c) => {
 
   if (existingFile) {
     const nextVer = await getNextVersion(c.env.DB, existingFile.id);
-    await createVersion(c.env.DB, {
-      id: generateId(),
-      file_id: existingFile.id,
-      version: nextVer - 1,
-      r2_key: existingFile.r2_key,
-      size: existingFile.size,
-      created_at: now,
-    });
-    await updateFile(c.env.DB, existingFile.id, {
-      r2_key: body.r2_key,
-      size: body.size,
-      updated_at: now,
-    });
+    const versionId = generateId();
+    await c.env.DB.batch([
+      c.env.DB.prepare(
+        "INSERT INTO file_versions (id, file_id, version, r2_key, size, created_at) VALUES (?, ?, ?, ?, ?, ?)"
+      ).bind(versionId, existingFile.id, nextVer - 1, existingFile.r2_key, existingFile.size, now),
+      c.env.DB.prepare(
+        "UPDATE files SET r2_key = ?, size = ?, updated_at = ? WHERE id = ?"
+      ).bind(body.r2_key, body.size, now, existingFile.id),
+    ]);
     return c.json({ id: existingFile.id, versioned: true });
   }
 

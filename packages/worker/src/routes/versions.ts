@@ -54,7 +54,18 @@ versions.delete("/:id/versions/:vid", async (c) => {
 
   if (!version) return c.json({ error: "Version not found" }, 404);
 
-  await c.env.BUCKET.delete(version.r2_key);
+  const file = await getFile(c.env.DB, fileId);
+  const keyInUse = file?.r2_key === version.r2_key;
+
+  if (!keyInUse) {
+    const otherRef = await c.env.DB.prepare(
+      "SELECT id FROM file_versions WHERE r2_key = ? AND id != ?"
+    ).bind(version.r2_key, versionId).first<{ id: string }>();
+    if (!otherRef) {
+      await c.env.BUCKET.delete(version.r2_key);
+    }
+  }
+
   await c.env.DB.prepare("DELETE FROM file_versions WHERE id = ?").bind(versionId).run();
 
   return c.json({ ok: true });

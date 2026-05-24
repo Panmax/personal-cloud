@@ -20,6 +20,8 @@ function buildPropEntry(href: string, file: FileRecord | null, isRoot?: boolean)
 <D:prop>
 <D:resourcetype><D:collection/></D:resourcetype>
 <D:displayname>/</D:displayname>
+<D:getlastmodified>${new Date().toUTCString()}</D:getlastmodified>
+<D:getcontentlength>0</D:getcontentlength>
 </D:prop>
 <D:status>HTTP/1.1 200 OK</D:status>
 </D:propstat>
@@ -35,13 +37,11 @@ function buildPropEntry(href: string, file: FileRecord | null, isRoot?: boolean)
 
   let props = `<D:resourcetype>${resourceType}</D:resourcetype>
 <D:displayname>${displayName}</D:displayname>
-<D:getlastmodified>${lastModified}</D:getlastmodified>`;
+<D:getlastmodified>${lastModified}</D:getlastmodified>
+<D:getcontentlength>${isDir ? 0 : file.size}</D:getcontentlength>`;
 
   if (!isDir) {
-    props += `\n<D:getcontentlength>${file.size}</D:getcontentlength>`;
-    if (file.mime_type) {
-      props += `\n<D:getcontenttype>${escapeXml(file.mime_type)}</D:getcontenttype>`;
-    }
+    props += `\n<D:getcontenttype>${escapeXml(file.mime_type || "application/octet-stream")}</D:getcontenttype>`;
   }
 
   return `<D:response>

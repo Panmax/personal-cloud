@@ -397,10 +397,10 @@ echo -n "devpassword" | shasum -a 256 | cut -d' ' -f1
 ## 测试
 
 ```bash
-# 后端测试（35 个集成 + 单元测试）
+# 后端测试（50 个集成 + 单元测试）
 cd packages/worker && pnpm test
 
-# 前端测试（21 个组件 + store 测试）
+# 前端测试（20 个组件 + store 测试）
 cd packages/web && pnpm test
 ```
 
@@ -424,8 +424,8 @@ personal-cloud/
 │       └── src/
 │           ├── pages/       # 文件视图、回收站、分享管理、WebDAV、登录、分享页
 │           ├── components/  # 可复用 UI 组件
-│           ├── hooks/       # React Query hooks、上传、快捷键
-│           ├── stores/      # Zustand 状态管理
+│           ├── hooks/       # React Query hooks、快捷键
+│           ├── stores/      # Zustand 状态管理（应用 + 上传队列）
 │           └── utils/       # 文件图标工具
 ├── CLAUDE.md               # AI 助手上下文
 ├── README.md               # English

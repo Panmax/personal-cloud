@@ -6,7 +6,6 @@ describe("app store", () => {
     useAppStore.setState({
       selectedIds: new Set(),
       viewMode: "list",
-      currentView: "files",
     });
   });
 
@@ -31,10 +30,5 @@ describe("app store", () => {
   it("switches view mode", () => {
     useAppStore.getState().setViewMode("grid");
     expect(useAppStore.getState().viewMode).toBe("grid");
-  });
-
-  it("switches current view", () => {
-    useAppStore.getState().setCurrentView("trash");
-    expect(useAppStore.getState().currentView).toBe("trash");
   });
 });

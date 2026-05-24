@@ -1,36 +1,42 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { Sidebar } from "../../src/components/Sidebar";
 
-describe("Sidebar", () => {
-  const defaultProps = {
-    currentView: "files" as const,
-    onViewChange: vi.fn(),
-    onLogout: vi.fn(),
-  };
+function renderSidebar(path = "/") {
+  const onLogout = vi.fn();
+  render(
+    <MemoryRouter initialEntries={[path]}>
+      <Sidebar onLogout={onLogout} />
+    </MemoryRouter>
+  );
+  return { onLogout };
+}
 
+describe("Sidebar", () => {
   it("renders all navigation items", () => {
-    render(<Sidebar {...defaultProps} />);
+    renderSidebar();
     expect(screen.getByText("All Files")).toBeInTheDocument();
     expect(screen.getByText("Trash")).toBeInTheDocument();
     expect(screen.getByText("Shared Links")).toBeInTheDocument();
+    expect(screen.getByText("WebDAV")).toBeInTheDocument();
   });
 
-  it("highlights the current view", () => {
-    render(<Sidebar {...defaultProps} currentView="trash" />);
+  it("highlights the current path", () => {
+    renderSidebar("/trash");
     const trashBtn = screen.getByText("Trash").closest("button")!;
     expect(trashBtn.className).toContain("bg-brand-50");
   });
 
-  it("calls onViewChange when nav item clicked", () => {
-    render(<Sidebar {...defaultProps} />);
-    fireEvent.click(screen.getByText("Trash"));
-    expect(defaultProps.onViewChange).toHaveBeenCalledWith("trash");
+  it("does not highlight inactive items", () => {
+    renderSidebar("/");
+    const trashBtn = screen.getByText("Trash").closest("button")!;
+    expect(trashBtn.className).not.toContain("bg-brand-50");
   });
 
   it("calls onLogout when logout clicked", () => {
-    render(<Sidebar {...defaultProps} />);
+    const { onLogout } = renderSidebar();
     fireEvent.click(screen.getByText("Logout"));
-    expect(defaultProps.onLogout).toHaveBeenCalled();
+    expect(onLogout).toHaveBeenCalled();
   });
 });

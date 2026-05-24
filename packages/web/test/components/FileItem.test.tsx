@@ -52,7 +52,7 @@ describe("FileItem", () => {
   it("calls onSelect on click", () => {
     render(<FileItem {...defaultProps} />);
     fireEvent.click(screen.getByText("document.pdf"));
-    expect(defaultProps.onSelect).toHaveBeenCalledWith("1", false);
+    expect(defaultProps.onSelect).toHaveBeenCalledWith("1", false, false);
   });
 
   it("calls onOpen on double click", () => {

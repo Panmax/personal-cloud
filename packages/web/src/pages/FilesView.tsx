@@ -8,8 +8,7 @@ import { Breadcrumb } from "../components/Breadcrumb";
 import { ContextMenu } from "../components/ContextMenu";
 import { BatchActionBar } from "../components/BatchActionBar";
 import { useAppStore } from "../stores/app";
-import { useUpload } from "../hooks/useUpload";
-import { UploadPanel } from "../components/UploadPanel";
+import { useUploadStore } from "../stores/upload";
 import { PreviewModal, getPreviewType } from "../components/PreviewModal";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { ShareDialog } from "../components/ShareDialog";
@@ -36,7 +35,7 @@ export function FilesView() {
   const createFolder = useCreateFolder();
   const renameFile = useRenameFile();
   const { selectedIds, clearSelection, viewMode, setViewMode } = useAppStore();
-  const { queue, addFiles, clearCompleted } = useUpload(currentFolderId);
+  const addFiles = useUploadStore((s) => s.addFiles);
   const [dragging, setDragging] = useState(false);
 
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setDragging(true); };
@@ -70,12 +69,12 @@ export function FilesView() {
     }
     for (const entry of entries) await readEntry(entry);
 
-    if (files.length > 0) addFiles(files);
+    if (files.length > 0) addFiles(files, currentFolderId);
   };
   const handleFileInput = () => {
     const input = document.createElement("input");
     input.type = "file"; input.multiple = true;
-    input.onchange = () => { if (input.files) addFiles(input.files); };
+    input.onchange = () => { if (input.files) addFiles(input.files, currentFolderId); };
     input.click();
   };
 
@@ -245,7 +244,6 @@ export function FilesView() {
           <p className="text-xl font-medium text-brand-700">Drop files to upload</p>
         </div>
       )}
-      <UploadPanel items={queue} onClear={clearCompleted} />
       {previewFile && <PreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />}
       {shareFile && <ShareDialog fileId={shareFile.id} fileName={shareFile.name} mimeType={shareFile.mime_type} onClose={() => setShareFile(null)} />}
       {showMoveDialog && (

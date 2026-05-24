@@ -396,10 +396,10 @@ Image links are managed in the Shared Links page (tagged as "Image Link") and ca
 ## Testing
 
 ```bash
-# Backend tests (35 integration + unit tests)
+# Backend tests (50 integration + unit tests)
 cd packages/worker && pnpm test
 
-# Frontend tests (21 component + store tests)
+# Frontend tests (20 component + store tests)
 cd packages/web && pnpm test
 ```
 
@@ -423,8 +423,8 @@ personal-cloud/
 │       └── src/
 │           ├── pages/       # FilesView, TrashView, SharesView, WebDAVView, Login, SharePage
 │           ├── components/  # Reusable UI components
-│           ├── hooks/       # React Query hooks, upload, keyboard
-│           ├── stores/      # Zustand state management
+│           ├── hooks/       # React Query hooks, keyboard shortcuts
+│           ├── stores/      # Zustand state (app + upload queue)
 │           └── utils/       # File icon helper
 ├── CLAUDE.md               # AI assistant context
 └── README.md

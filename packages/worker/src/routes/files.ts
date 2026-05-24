@@ -55,19 +55,15 @@ files.post("/", async (c) => {
 
     if (existingFile) {
       const nextVer = await getNextVersion(c.env.DB, existingFile.id);
-      await createVersion(c.env.DB, {
-        id: generateId(),
-        file_id: existingFile.id,
-        version: nextVer - 1,
-        r2_key: existingFile.r2_key,
-        size: existingFile.size,
-        created_at: now,
-      });
-      await updateFile(c.env.DB, existingFile.id, {
-        r2_key: r2Key,
-        size: file.size,
-        updated_at: now,
-      });
+      const versionId = generateId();
+      await c.env.DB.batch([
+        c.env.DB.prepare(
+          "INSERT INTO file_versions (id, file_id, version, r2_key, size, created_at) VALUES (?, ?, ?, ?, ?, ?)"
+        ).bind(versionId, existingFile.id, nextVer - 1, existingFile.r2_key, existingFile.size, now),
+        c.env.DB.prepare(
+          "UPDATE files SET r2_key = ?, size = ?, updated_at = ? WHERE id = ?"
+        ).bind(r2Key, file.size, now, existingFile.id),
+      ]);
       return c.json({ id: existingFile.id, versioned: true }, 200);
     }
 
@@ -109,6 +105,14 @@ files.patch("/:id", async (c) => {
   const body = await c.req.json<{ name?: string; parent_id?: string }>();
   const now = new Date().toISOString();
 
+  if (body.parent_id) {
+    const target = await c.env.DB.prepare(
+      "SELECT id, is_dir FROM files WHERE id = ? AND deleted_at IS NULL"
+    ).bind(body.parent_id).first<{ id: string; is_dir: number }>();
+    if (!target) return c.json({ error: "Target directory not found" }, 400);
+    if (!target.is_dir) return c.json({ error: "Target is not a directory" }, 400);
+  }
+
   const updates: Record<string, string | null> = { updated_at: now };
   if (body.name !== undefined) updates.name = body.name;
   if (body.parent_id !== undefined) updates.parent_id = body.parent_id || null;
@@ -139,6 +143,13 @@ files.post("/batch", async (c) => {
       await softDeleteFile(c.env.DB, id, now);
     }
   } else if (body.action === "move" && body.target !== undefined) {
+    if (body.target) {
+      const target = await c.env.DB.prepare(
+        "SELECT id, is_dir FROM files WHERE id = ? AND deleted_at IS NULL"
+      ).bind(body.target).first<{ id: string; is_dir: number }>();
+      if (!target) return c.json({ error: "Target directory not found" }, 400);
+      if (!target.is_dir) return c.json({ error: "Target is not a directory" }, 400);
+    }
     for (const id of body.ids) {
       await updateFile(c.env.DB, id, {
         parent_id: body.target || null,

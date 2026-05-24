@@ -62,15 +62,9 @@ export function Sidebar({ onLogout, onNavItemClick }: Props) {
       </nav>
 
       {stats && (
-        <div className="px-4 py-3 border-t border-slate-200">
-          <div className="flex items-baseline justify-between">
-            <span className="text-xs font-medium text-slate-600">{formatBytes(usedBytes)}</span>
-            {monthlyCost > 0 && (
-              <span className="text-[10px] text-slate-400">${monthlyCost}/mo</span>
-            )}
-          </div>
-          <span className="text-[10px] text-slate-400">
-            {stats.counts.files} files · {stats.counts.folders} folders
+        <div className="px-4 py-2.5 border-t border-slate-200">
+          <span className="text-[11px] text-slate-500">
+            {formatBytes(usedBytes)} · {stats.counts.files} files · {stats.counts.folders} folders{monthlyCost > 0 ? ` · $${monthlyCost}/mo` : ""}
           </span>
         </div>
       )}

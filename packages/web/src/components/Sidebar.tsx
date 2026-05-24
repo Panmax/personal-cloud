@@ -65,9 +65,7 @@ export function Sidebar({ onLogout, onNavItemClick }: Props) {
         <div className="px-4 py-3 border-t border-slate-200">
           <div className="flex items-baseline justify-between">
             <span className="text-xs font-medium text-slate-600">{formatBytes(usedBytes)}</span>
-            {monthlyCost > 0 && (
-              <span className="text-[10px] text-slate-400">${monthlyCost}/mo</span>
-            )}
+            <span className="text-[10px] text-slate-400">${monthlyCost}/mo</span>
           </div>
           <span className="text-[10px] text-slate-400">
             {stats.counts.files} files · {stats.counts.folders} folders

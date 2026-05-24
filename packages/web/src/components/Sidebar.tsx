@@ -10,11 +10,17 @@ const navItems = [
 
 interface Props {
   onLogout: () => void;
+  onNavItemClick?: () => void;
 }
 
-export function Sidebar({ onLogout }: Props) {
+export function Sidebar({ onLogout, onNavItemClick }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const handleNav = (path: string) => {
+    navigate(path);
+    onNavItemClick?.();
+  };
 
   return (
     <aside className="w-56 bg-slate-50 border-r border-slate-200 flex flex-col h-full">
@@ -29,7 +35,7 @@ export function Sidebar({ onLogout }: Props) {
           return (
             <button
               key={path}
-              onClick={() => navigate(path)}
+              onClick={() => handleNav(path)}
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors mb-0.5 ${
                 active
                   ? "bg-brand-50 text-brand-700 font-medium"

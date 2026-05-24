@@ -48,8 +48,8 @@ export function SharesView() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <header className="flex items-center gap-3 px-5 py-4 border-b border-slate-200">
-        <Share2 className="w-5 h-5 text-slate-500" />
+      <header className="flex flex-wrap items-center gap-2 px-3 py-3 border-b border-slate-200 sm:flex-nowrap sm:gap-3 sm:px-5 sm:py-4">
+        <Share2 className="w-5 h-5 text-slate-500 flex-shrink-0" />
         <h2 className="font-semibold text-slate-800 flex-1">Shared Links</h2>
         <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
           <button
@@ -87,7 +87,7 @@ export function SharesView() {
             const isImageLink = !share.password && !share.expires_at && share.file_mime_type?.startsWith("image/");
             const rawUrl = `${BASE}/s/${share.id}/raw`;
             return (
-              <div key={share.id} className="flex items-center px-5 py-3 border-b border-slate-100 hover:bg-slate-50 transition-colors">
+              <div key={share.id} className="flex items-center px-3 py-3 border-b border-slate-100 hover:bg-slate-50 transition-colors sm:px-5">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-sm text-slate-700 truncate font-medium">{share.file_name || "Unknown file"}</p>

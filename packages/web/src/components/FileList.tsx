@@ -42,8 +42,8 @@ export function FileList({ files, onOpen, onContextMenu }: Props) {
 
   if (viewMode === "grid") {
     return (
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-2">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(110px,1fr))] gap-2 sm:grid-cols-[repeat(auto-fill,minmax(140px,1fr))]">
           {files.map((file) => (
             <FileGridItem
               key={file.id}
@@ -61,11 +61,11 @@ export function FileList({ files, onOpen, onContextMenu }: Props) {
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="flex items-center px-4 py-2 text-xs text-slate-400 font-medium border-b border-slate-100 bg-slate-50/50">
+      <div className="flex items-center px-3 py-2 text-xs text-slate-400 font-medium border-b border-slate-100 bg-slate-50/50 sm:px-4">
         <span className="w-5 mr-3" />
         <span className="flex-1">Name</span>
-        <span className="w-24 text-right">Size</span>
-        <span className="w-40 text-right">Modified</span>
+        <span className="w-16 text-right sm:w-24">Size</span>
+        <span className="hidden sm:block w-40 text-right">Modified</span>
       </div>
       {files.map((file) => (
         <FileItem

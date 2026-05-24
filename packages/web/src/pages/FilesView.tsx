@@ -178,8 +178,8 @@ export function FilesView() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden" onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
-      <header className="flex items-center gap-3 px-4 py-3 border-b border-slate-200">
-        <div className="flex items-center gap-2 flex-1 max-w-md bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5">
+      <header className="flex flex-col gap-2 px-3 py-2 border-b border-slate-200 sm:flex-row sm:items-center sm:gap-3 sm:px-4 sm:py-3">
+        <div className="flex items-center gap-2 flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 sm:max-w-md">
           <Search className="w-4 h-4 text-slate-400 flex-shrink-0" />
           <input
             type="text"
@@ -209,20 +209,20 @@ export function FilesView() {
           >
             <LayoutGrid className="w-4 h-4" />
           </button>
-          <div className="w-px h-5 bg-slate-200 mx-2" />
+          <div className="w-px h-5 bg-slate-200 mx-1 sm:mx-2" />
           <button
             onClick={handleNewFolder}
-            className="flex items-center gap-1.5 text-sm px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-700 transition-colors"
+            className="flex items-center gap-1.5 text-sm px-2 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-700 transition-colors sm:px-3"
           >
             <FolderPlus className="w-4 h-4" />
-            New Folder
+            <span className="hidden sm:inline">New Folder</span>
           </button>
           <button
             onClick={handleFileInput}
-            className="flex items-center gap-1.5 text-sm px-3 py-1.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors"
+            className="flex items-center gap-1.5 text-sm px-2 py-1.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors sm:px-3"
           >
             <Upload className="w-4 h-4" />
-            Upload
+            <span className="hidden sm:inline">Upload</span>
           </button>
         </div>
       </header>
